@@ -13,8 +13,8 @@ Frontend là SPA (React + Vite). Staging deploy từ nhánh **`develop`**.
 
 | Key | Giá trị staging | Ghi chú |
 |-----|-----------------|---------|
-| `VITE_API_BASE_URL` | `https://<be-staging>.up.railway.app/api` | URL BE staging (Railway), có hậu tố `/api` |
-| `VITE_WS_URL` | `https://<be-staging>.up.railway.app/ws` | WebSocket endpoint |
+| `VITE_API_BASE_URL` | `https://<be-staging>.onrender.com/api` | URL BE staging (Render), có hậu tố `/api` |
+| `VITE_WS_URL` | `https://<be-staging>.onrender.com/ws` | WebSocket endpoint |
 | `VITE_APP_GOOGLE_CLIENT_ID` | *(client id staging)* | Google OAuth; để trống nếu chưa dùng |
 | `VITE_SITE_URL` | `https://<fe-staging>.vercel.app` | Dùng cho canonical/OG/sitemap |
 | `VITE_OG_IMAGE_PATH` | `/og-image.png` | Đã có sẵn asset |
