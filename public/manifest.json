@@ -1,0 +1,30 @@
+{
+  "name": "Thả Thính — Hẹn hò & trò chuyện",
+  "short_name": "Thả Thính",
+  "description": "Hẹn hò, trò chuyện theo topic và thả thính ngẫu nhiên. Chỉ cần nickname.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#fff1f2",
+  "theme_color": "#e11d48",
+  "lang": "vi",
+  "categories": ["social", "lifestyle", "dating"],
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "16x16 32x32 48x48 64x64 128x128 256x256",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

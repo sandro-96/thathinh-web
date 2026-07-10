@@ -1,0 +1,407 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/* =====================================================================
+ * Modern shadcn/ui v4 palette (oklch) — light + dark.
+ * Dark mode chọn theo xu hướng 2026: nền trung tính-deep với chút ấm,
+ * highlight indigo/violet hoà với accent xanh để tạo chiều sâu, không
+ * dùng đen tuyệt đối nhằm tránh banding & nhức mắt khi dùng lâu.
+ * ===================================================================== */
+:root {
+  --radius: 0.625rem;
+
+  /* Base surfaces */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+
+  /* Brand — xanh lá (đồng bộ CTA / nút gửi form) */
+  --primary: oklch(0.52 0.14 155);
+  --primary-foreground: oklch(0.985 0 0);
+
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+
+  /* Neutral helpers */
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+
+  /* Semantic */
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --success: oklch(0.65 0.18 150);
+  --success-foreground: oklch(0.985 0 0);
+
+  --warning: oklch(0.78 0.16 80);
+  --warning-foreground: oklch(0.205 0 0);
+
+  --info: oklch(0.62 0.18 245);
+  --info-foreground: oklch(0.985 0 0);
+
+  /* Form / outline — viền input & focus ring xanh da trời */
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.82 0.055 245);
+  --ring: oklch(0.62 0.18 245);
+
+  /* Sidebar */
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  /* Surfaces — nền trung tính sâu, không pure black */
+  --background: oklch(0.145 0.005 285);
+  --foreground: oklch(0.985 0 0);
+
+  --card: oklch(0.205 0.006 285);
+  --card-foreground: oklch(0.985 0 0);
+
+  --popover: oklch(0.205 0.006 285);
+  --popover-foreground: oklch(0.985 0 0);
+
+  /* Brand — xanh sáng trên nền tối */
+  --primary: oklch(0.72 0.16 155);
+  --primary-foreground: oklch(0.145 0 0);
+
+  --secondary: oklch(0.269 0.005 285);
+  --secondary-foreground: oklch(0.985 0 0);
+
+  /* Neutral helpers */
+  --muted: oklch(0.269 0.005 285);
+  --muted-foreground: oklch(0.708 0.01 285);
+
+  --accent: oklch(0.305 0.008 285);
+  --accent-foreground: oklch(0.985 0 0);
+
+  /* Semantic — sáng hơn để bám trên nền tối */
+  --destructive: oklch(0.7 0.19 22);
+  --destructive-foreground: oklch(0.985 0 0);
+
+  --success: oklch(0.72 0.17 155);
+  --success-foreground: oklch(0.145 0 0);
+
+  --warning: oklch(0.82 0.16 75);
+  --warning-foreground: oklch(0.145 0 0);
+
+  --info: oklch(0.7 0.18 245);
+  --info-foreground: oklch(0.145 0 0);
+
+  /* Form / outline */
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(0.55 0.12 245 / 0.42);
+  --ring: oklch(0.7 0.18 245);
+
+  /* Sidebar — tối hơn card 1 chút để tách lớp */
+  --sidebar: oklch(0.18 0.006 285);
+  --sidebar-foreground: oklch(0.96 0 0);
+  --sidebar-primary: oklch(0.62 0.2 264);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.28 0.008 285);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.62 0.2 264);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+
+  --color-info: var(--info);
+  --color-info-foreground: var(--info-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html {
+    /* Ngăn trình duyệt mobile tự phóng to chữ (nguyên nhân "chữ bị to" trên iOS/Android) */
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-background text-foreground;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior-y: none;
+  }
+  /* Không cho bàn phím ảo/zoom co giãn khi focus input trên iOS: giữ >=16px thực */
+  input,
+  textarea,
+  select,
+  button {
+    font-synthesis-weight: none;
+  }
+}
+
+.oi-regular {
+  font-family: "Oi", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.coiny-regular {
+  font-family: "Coiny", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+/* Scrollbar — tinh tế cả 2 chế độ */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: color-mix(in oklab, var(--muted-foreground) 35%, transparent);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in oklab, var(--muted-foreground) 55%, transparent);
+  background-clip: padding-box;
+  border: 2px solid transparent;
+}
+
+/* Thả Thính — warm rose brand */
+:root {
+  --primary: oklch(0.58 0.22 15);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.58 0.22 15);
+}
+
+/* =====================================================================
+ * Animation system — dùng chung cho toàn app.
+ * Ưu tiên CSS thuần cho các hiệu ứng entrance/idle nhẹ (hiệu năng tốt,
+ * không cần JS), dành framer-motion cho tương tác phức tạp.
+ * ===================================================================== */
+@keyframes th-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes th-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes th-scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes th-pop-in {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(6px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.03) translateY(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+@keyframes th-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+@keyframes th-heart-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 12px 30px -8px color-mix(in oklab, var(--primary) 55%, transparent);
+  }
+  50% {
+    transform: scale(1.06);
+    box-shadow: 0 18px 44px -6px color-mix(in oklab, var(--primary) 70%, transparent);
+  }
+  100% {
+    transform: scale(1);
+    box-shadow: 0 12px 30px -8px color-mix(in oklab, var(--primary) 55%, transparent);
+  }
+}
+@keyframes th-ring-ripple {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+@keyframes th-heart-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6) rotate(var(--th-rot, 0deg));
+  }
+  15% {
+    opacity: var(--th-op, 0.8);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-140px) scale(1.1) rotate(var(--th-rot, 0deg));
+  }
+}
+@keyframes th-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+@keyframes th-gradient-pan {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.animate-fade-up {
+  animation: th-fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-fade-in {
+  animation: th-fade-in 0.4s ease-out both;
+}
+.animate-scale-in {
+  animation: th-scale-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.animate-pop-in {
+  animation: th-pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+}
+.animate-float {
+  animation: th-float 3.5s ease-in-out infinite;
+}
+.animate-heart-pulse {
+  animation: th-heart-pulse 1.8s ease-in-out infinite;
+}
+.animate-gradient-pan {
+  background-size: 200% 200%;
+  animation: th-gradient-pan 8s ease infinite;
+}
+
+/* Stagger helpers: đặt cùng .animate-fade-up để trễ dần */
+.stagger-1 {
+  animation-delay: 0.05s;
+}
+.stagger-2 {
+  animation-delay: 0.1s;
+}
+.stagger-3 {
+  animation-delay: 0.15s;
+}
+.stagger-4 {
+  animation-delay: 0.2s;
+}
+.stagger-5 {
+  animation-delay: 0.25s;
+}
+.stagger-6 {
+  animation-delay: 0.3s;
+}
+
+/* Tin nhắn chat xuất hiện mượt */
+.animate-msg-in {
+  animation: th-pop-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

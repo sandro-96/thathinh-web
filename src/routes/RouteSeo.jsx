@@ -1,0 +1,28 @@
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+import { applySeoHead } from "@/lib/seoHead";
+import { seoForPath, buildGlobalJsonLd } from "@/lib/seoConfig";
+
+/**
+ * Applies per-route document head SEO on navigation:
+ * - title / description / og / twitter for public pages
+ * - noindex for authenticated app surfaces
+ * - global Organization + WebSite JSON-LD (indexable pages only)
+ *
+ * Rendered once inside the router; has no visual output.
+ */
+export function RouteSeo() {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const seo = seoForPath(pathname);
+    applySeoHead({
+      ...seo,
+      jsonLd: seo.noIndex ? undefined : buildGlobalJsonLd(),
+      jsonLdId: "site-jsonld",
+    });
+    document.documentElement.lang = "vi";
+  }, [pathname]);
+
+  return null;
+}
