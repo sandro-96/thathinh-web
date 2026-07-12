@@ -454,7 +454,7 @@ export default function ProfilePage() {
                   type="number"
                   min={18}
                   value={form.minAge}
-                  onChange={(e) => setForm({ ...form, minAge: e.target.value })}
+                  onChange={(e) => setForm({ ...form, minAge: Number(e.target.value) || 18 })}
                 />
               </div>
               <div className="space-y-1">
@@ -463,7 +463,7 @@ export default function ProfilePage() {
                   type="number"
                   min={18}
                   value={form.maxAge}
-                  onChange={(e) => setForm({ ...form, maxAge: e.target.value })}
+                  onChange={(e) => setForm({ ...form, maxAge: Number(e.target.value) || 60 })}
                 />
               </div>
             </div>

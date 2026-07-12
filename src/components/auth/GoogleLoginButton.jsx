@@ -31,7 +31,12 @@ function GoogleLoginButtonInner() {
     <div className="flex justify-center">
       <GoogleLogin
         onSuccess={handleSuccess}
-        onError={() => toast.error("Đăng nhập Google thất bại")}
+        onError={() =>
+          toast.error(
+            "Google từ chối origin. Thêm URL trang này vào Authorized JavaScript origins trong Google Cloud Console, rồi redeploy FE.",
+            { duration: 8000 },
+          )
+        }
         text="continue_with"
         shape="rectangular"
         theme="outline"

@@ -65,6 +65,12 @@ export function getApiErrorMessage(err, fallback = "Có lỗi xảy ra") {
 
   const data = err.response.data;
   if (data?.code && API_MESSAGES[data.code]) {
+    if (data.code === "4000" && data.data && typeof data.data === "object") {
+      const fields = Object.entries(data.data)
+        .map(([k, v]) => `${k}: ${v}`)
+        .join("; ");
+      if (fields) return `Dữ liệu không hợp lệ (${fields})`;
+    }
     return API_MESSAGES[data.code];
   }
   if (data?.message) return data.message;

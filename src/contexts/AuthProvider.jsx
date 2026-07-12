@@ -37,6 +37,9 @@ export function AuthProvider({ children }) {
         preferences: profile.preferences,
         profileComplete: profile.profileComplete,
         verified: profile.verified !== false,
+        bio: profile.bio,
+        interests: profile.interests,
+        photos: profile.photos,
         role: decoded.role?.replace("ROLE_", "") || "USER",
       });
     } catch {
