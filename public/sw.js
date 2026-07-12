@@ -1,4 +1,4 @@
-/* Service Worker cho Web Push — nhận thông báo cả khi tab/trình duyệt đã đóng. */
+/* Service Worker cho Web Push — v2 */
 
 self.addEventListener("install", () => self.skipWaiting());
 

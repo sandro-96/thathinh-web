@@ -31,7 +31,10 @@ export default defineConfig(({ mode }) => {
     },
   },
   plugins: [react(), tailwindcss(), seoSitemapPlugin()],
-  define: { global: 'globalThis' },
+  define: {
+    global: "globalThis",
+    __APP_BUILD__: JSON.stringify(process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 7) || "dev"),
+  },
   optimizeDeps: {
     esbuildOptions: {
       define: { global: 'globalThis' },

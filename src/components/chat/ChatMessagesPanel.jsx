@@ -55,6 +55,7 @@ function MessagesSkeleton() {
 }
 
 const NEAR_BOTTOM_THRESHOLD = 320;
+const IMAGE_SCROLL_DELAYS_MS = [0, 80, 200, 500, 1000, 2000];
 
 export function ChatMessagesPanel({
   messages,
@@ -75,15 +76,20 @@ export function ChatMessagesPanel({
   const prevHeightRef = useRef(0);
   const lastMessageIdRef = useRef(null);
   const nearBottomRef = useRef(true);
+  const initialScrollDoneRef = useRef(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
 
-  const scrollToBottom = useCallback((behavior = "smooth") => {
+  const stickToBottom = useCallback((behavior = "auto") => {
     const el = viewportRef.current;
     if (!el) return;
     el.scrollTo({ top: el.scrollHeight, behavior });
     nearBottomRef.current = true;
     setShowScrollDown(false);
   }, []);
+
+  const scrollToBottom = useCallback((behavior = "smooth") => {
+    stickToBottom(behavior);
+  }, [stickToBottom]);
 
   const updateScrollDown = useCallback(() => {
     const el = viewportRef.current;
@@ -98,29 +104,42 @@ export function ChatMessagesPanel({
     updateScrollDown();
   };
 
+  const scheduleBottomStick = useCallback((behavior = "auto") => {
+    const timers = IMAGE_SCROLL_DELAYS_MS.map((ms) =>
+      window.setTimeout(() => {
+        if (nearBottomRef.current) stickToBottom(behavior);
+      }, ms)
+    );
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [stickToBottom]);
+
   useEffect(() => {
     updateScrollDown();
   }, [messages.length, updateScrollDown]);
+
+  useEffect(() => {
+    if (loading) {
+      initialScrollDoneRef.current = false;
+      return;
+    }
+    if (messages.length === 0) return;
+    if (initialScrollDoneRef.current) return;
+    initialScrollDoneRef.current = true;
+    return scheduleBottomStick("auto");
+  }, [loading, messages.length, scheduleBottomStick]);
 
   useEffect(() => {
     const last = messages[messages.length - 1];
     if (!last?.id || loadingMore) return;
     if (last.id === lastMessageIdRef.current) return;
     lastMessageIdRef.current = last.id;
-    scrollToBottom("smooth");
-    // Ảnh load sau scroll — bám đáy lại sau layout ổn định
-    const t1 = window.setTimeout(() => scrollToBottom("auto"), 120);
-    const t2 = window.setTimeout(() => scrollToBottom("auto"), 400);
-    return () => {
-      window.clearTimeout(t1);
-      window.clearTimeout(t2);
-    };
-  }, [messages, loadingMore, scrollToBottom]);
+    return scheduleBottomStick("smooth");
+  }, [messages, loadingMore, scheduleBottomStick]);
 
   useEffect(() => {
     if (!typingIndicator) return;
-    if (nearBottomRef.current) scrollToBottom("smooth");
-  }, [typingIndicator, scrollToBottom]);
+    if (nearBottomRef.current) stickToBottom("smooth");
+  }, [typingIndicator, stickToBottom]);
 
   useEffect(() => {
     if (loadingMore) {
@@ -135,21 +154,35 @@ export function ChatMessagesPanel({
     }
   }, [messages.length, loadingMore]);
 
-  // Khi ảnh/tin mới làm đổi chiều cao list, giữ vị trí đáy nếu user đang ở gần đáy
   useEffect(() => {
     const viewport = viewportRef.current;
     if (!viewport) return;
-    const content = viewport.firstElementChild;
-    if (!content || typeof ResizeObserver === "undefined") return;
 
-    const ro = new ResizeObserver(() => {
+    const onImageLoad = (e) => {
+      if (e.target?.tagName !== "IMG") return;
       if (nearBottomRef.current) {
         viewport.scrollTop = viewport.scrollHeight;
       }
       updateScrollDown();
-    });
-    ro.observe(content);
-    return () => ro.disconnect();
+    };
+    viewport.addEventListener("load", onImageLoad, true);
+
+    const content = viewport.firstElementChild;
+    let ro;
+    if (content && typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(() => {
+        if (nearBottomRef.current) {
+          viewport.scrollTop = viewport.scrollHeight;
+        }
+        updateScrollDown();
+      });
+      ro.observe(content);
+    }
+
+    return () => {
+      viewport.removeEventListener("load", onImageLoad, true);
+      ro?.disconnect();
+    };
   }, [updateScrollDown]);
 
   if (loading) {
@@ -177,7 +210,7 @@ export function ChatMessagesPanel({
         onScroll={handleViewportScroll}
         className="flex-1 overflow-y-auto overflow-x-hidden pr-2"
       >
-        <div className="space-y-3 py-2 min-h-full flex flex-col">
+        <div className="space-y-3 py-2">
           {loadingMore && (
             <div className="flex justify-center py-2">
               <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
@@ -192,15 +225,7 @@ export function ChatMessagesPanel({
                 <Fragment key={m.id ?? i}>
                   {shouldShowDivider(messages[i - 1], m) && <DateDivider date={m.sentAt} />}
                   {firstUnreadMessageId && m.id === firstUnreadMessageId && <UnreadDivider />}
-                  <div
-                    style={
-                      m.imageUrl
-                        ? undefined
-                        : { contentVisibility: "auto", containIntrinsicSize: "auto 64px" }
-                    }
-                  >
-                    {renderMessage(m, i)}
-                  </div>
+                  {renderMessage(m, i)}
                 </Fragment>
               ))}
           {typingIndicator}

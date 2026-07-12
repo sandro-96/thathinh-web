@@ -84,8 +84,26 @@ function formFromProfile(profile) {
   };
 }
 
+function applyProfileToUser(prev, profile) {
+  if (!prev || !profile) return prev;
+  return {
+    ...prev,
+    email: profile.email ?? prev.email,
+    nickname: profile.nickname,
+    avatarUrl: profile.avatarUrl,
+    gender: profile.gender,
+    birthDate: profile.birthDate,
+    preferences: profile.preferences,
+    profileComplete: profile.profileComplete,
+    verified: profile.verified !== false,
+    bio: profile.bio,
+    interests: profile.interests,
+    photos: profile.photos,
+  };
+}
+
 export default function ProfilePage() {
-  const { user, refreshProfile, logout } = useAuth();
+  const { user, setUser, refreshProfile, logout } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isOnboarding = searchParams.get("onboarding") === "1" || !isProfileComplete(user);
@@ -110,12 +128,20 @@ export default function ProfilePage() {
 
   const maxBirthDate = maxBirthDateFor18Plus();
   const isDirtyRef = useRef(false);
+  const saveEpochRef = useRef(0);
 
   useEffect(() => {
-    if (!user?.id || isDirtyRef.current) return;
-    const next = formFromProfile(user);
-    if (next) setForm(next);
-  }, [user]);
+    let cancelled = false;
+    (async () => {
+      const profile = await refreshProfile();
+      if (cancelled || !profile || isDirtyRef.current) return;
+      const next = formFromProfile(profile);
+      if (next) setForm(next);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [refreshProfile]);
 
   const patchForm = useCallback((patch) => {
     isDirtyRef.current = true;
@@ -157,6 +183,7 @@ export default function ProfilePage() {
       return;
     }
     setSaving(true);
+    const epoch = ++saveEpochRef.current;
     try {
       const res = await updateProfile({
         nickname: form.nickname.trim(),
@@ -174,14 +201,16 @@ export default function ProfilePage() {
       const next = formFromProfile(profile);
       isDirtyRef.current = false;
       if (next) setForm(next);
-      void refreshProfile();
+      setUser((prev) => applyProfileToUser(prev, profile));
       const complete = profile?.profileComplete;
       toast.success(complete ? "Hồ sơ đã hoàn thiện!" : "Đã cập nhật hồ sơ");
       if (complete && isOnboarding) {
         navigate("/topics");
       }
     } catch (err) {
-      toast.error(getApiErrorMessage(err, "Lỗi cập nhật"));
+      if (epoch === saveEpochRef.current) {
+        toast.error(getApiErrorMessage(err, "Lỗi cập nhật"));
+      }
     } finally {
       setSaving(false);
     }
