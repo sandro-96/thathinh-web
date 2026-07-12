@@ -7,6 +7,7 @@ Frontend là SPA (React + Vite). Staging deploy từ nhánh **`develop`**.
 1. Vercel → **Add New… → Project** → import `sandro-96/thathinh-web`.
 2. Framework Preset: **Vite** (tự nhận). Build Command: `npm run build`, Output: `dist`.
 3. **Production Branch**: đặt là `develop` cho project staging (hoặc tạo 1 project riêng "thathinh-web-staging" trỏ nhánh `develop`).
+   > ⚠️ Nếu Production Branch vẫn là `main`, domain `https://thathinh-web.vercel.app` sẽ chạy **code cũ** từ `main`, còn push `develop` chỉ tạo **Preview** (`*-git-develop-*.vercel.app`). Để staging dùng domain chính, đổi Production Branch → `develop` rồi **Redeploy**.
 4. `vercel.json` đã có sẵn rewrite SPA (`/(.*) → /`) nên không cần cấu hình thêm.
 
 ## 2. Environment Variables (Vercel → Settings → Environment Variables)
@@ -55,6 +56,7 @@ Disallow: /
 ## 5. Kiểm tra sau deploy
 
 - [ ] Trang landing `/` load, gọi login/register OK (BE staging đã CORS cho domain FE).
+- [ ] **Xác nhận bản deploy mới:** DevTools → Console → `[Thả Thính] build <commit>` (7 ký tự đầu commit trên GitHub `develop`).
 - [ ] `https://<fe-staging>.vercel.app/og-image.png` trả 200.
 - [ ] WebSocket kết nối (mở phòng topic, thấy presence).
 - [ ] Nếu bật SEO: View Source thấy `og:image` absolute; `/sitemap.xml` 200.

@@ -129,17 +129,26 @@ export default function ProfilePage() {
   const maxBirthDate = maxBirthDateFor18Plus();
   const isDirtyRef = useRef(false);
   const saveEpochRef = useRef(0);
+  const hydrateGenRef = useRef(0);
 
   useEffect(() => {
+    if (user?.id && !isDirtyRef.current) {
+      const seed = formFromProfile(user);
+      if (seed) setForm(seed);
+    }
+
+    const gen = ++hydrateGenRef.current;
     let cancelled = false;
     (async () => {
       const profile = await refreshProfile();
-      if (cancelled || !profile || isDirtyRef.current) return;
+      if (cancelled || gen !== hydrateGenRef.current) return;
+      if (!profile || isDirtyRef.current) return;
       const next = formFromProfile(profile);
       if (next) setForm(next);
     })();
     return () => {
       cancelled = true;
+      hydrateGenRef.current += 1;
     };
   }, [refreshProfile]);
 
@@ -182,6 +191,7 @@ export default function ProfilePage() {
       toast.error("Vui lòng chọn ngày sinh");
       return;
     }
+    hydrateGenRef.current += 1;
     setSaving(true);
     const epoch = ++saveEpochRef.current;
     try {
