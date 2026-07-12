@@ -396,6 +396,7 @@ export default function PrivateChatPage() {
       </div>
 
       <ChatMessagesPanel
+        key={conversationId}
         messages={messages}
         loading={loading}
         loadingMore={loadingMore}

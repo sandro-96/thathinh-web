@@ -185,6 +185,7 @@ export default function TopicChatPage() {
     body = (
       <>
         <ChatMessagesPanel
+          key={topic?.id ?? slug}
           messages={messages}
           loading={loading}
           loadingMore={loadingMore}

@@ -54,8 +54,8 @@ function MessagesSkeleton() {
   );
 }
 
-const NEAR_BOTTOM_THRESHOLD = 320;
-const IMAGE_SCROLL_DELAYS_MS = [0, 80, 200, 500, 1000, 2000];
+const NEAR_BOTTOM_THRESHOLD = 120;
+const BOTTOM_STICK_DELAYS_MS = [0, 50, 150, 400, 800, 1500];
 
 export function ChatMessagesPanel({
   messages,
@@ -76,70 +76,76 @@ export function ChatMessagesPanel({
   const prevHeightRef = useRef(0);
   const lastMessageIdRef = useRef(null);
   const nearBottomRef = useRef(true);
-  const initialScrollDoneRef = useRef(false);
+  const userScrolledRef = useRef(false);
   const [showScrollDown, setShowScrollDown] = useState(false);
 
-  const stickToBottom = useCallback((behavior = "auto") => {
+  const readDistanceFromBottom = useCallback(() => {
+    const el = viewportRef.current;
+    if (!el) return 0;
+    return el.scrollHeight - el.scrollTop - el.clientHeight;
+  }, []);
+
+  const forceScrollToBottom = useCallback(() => {
     const el = viewportRef.current;
     if (!el) return;
-    el.scrollTo({ top: el.scrollHeight, behavior });
+    el.scrollTop = el.scrollHeight;
     nearBottomRef.current = true;
+    userScrolledRef.current = false;
     setShowScrollDown(false);
   }, []);
 
-  const scrollToBottom = useCallback((behavior = "smooth") => {
-    stickToBottom(behavior);
-  }, [stickToBottom]);
+  const stickIfNearBottom = useCallback(() => {
+    if (!nearBottomRef.current || userScrolledRef.current) return;
+    forceScrollToBottom();
+  }, [forceScrollToBottom]);
 
   const updateScrollDown = useCallback(() => {
-    const el = viewportRef.current;
-    if (!el) return;
-    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    nearBottomRef.current = distanceFromBottom <= NEAR_BOTTOM_THRESHOLD;
-    setShowScrollDown(distanceFromBottom > NEAR_BOTTOM_THRESHOLD);
-  }, []);
+    const distance = readDistanceFromBottom();
+    nearBottomRef.current = distance <= NEAR_BOTTOM_THRESHOLD;
+    setShowScrollDown(distance > NEAR_BOTTOM_THRESHOLD);
+  }, [readDistanceFromBottom]);
 
-  const handleViewportScroll = (e) => {
-    onScroll?.(e);
-    updateScrollDown();
-  };
-
-  const scheduleBottomStick = useCallback((behavior = "auto") => {
-    const timers = IMAGE_SCROLL_DELAYS_MS.map((ms) =>
-      window.setTimeout(() => {
-        if (nearBottomRef.current) stickToBottom(behavior);
-      }, ms)
+  const scheduleForceBottom = useCallback(() => {
+    const timers = BOTTOM_STICK_DELAYS_MS.map((ms) =>
+      window.setTimeout(() => forceScrollToBottom(), ms)
     );
     return () => timers.forEach((id) => window.clearTimeout(id));
-  }, [stickToBottom]);
+  }, [forceScrollToBottom]);
 
-  useEffect(() => {
-    updateScrollDown();
-  }, [messages.length, updateScrollDown]);
+  const handleViewportScroll = (e) => {
+    const el = e.currentTarget;
+    const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const nearBottom = distance <= NEAR_BOTTOM_THRESHOLD;
+    nearBottomRef.current = nearBottom;
+    setShowScrollDown(!nearBottom);
+    if (!nearBottom) userScrolledRef.current = true;
+    onScroll?.(e);
+  };
 
   useEffect(() => {
     if (loading) {
-      initialScrollDoneRef.current = false;
+      lastMessageIdRef.current = null;
+      userScrolledRef.current = false;
+      nearBottomRef.current = true;
       return;
     }
     if (messages.length === 0) return;
-    if (initialScrollDoneRef.current) return;
-    initialScrollDoneRef.current = true;
-    return scheduleBottomStick("auto");
-  }, [loading, messages.length, scheduleBottomStick]);
+    return scheduleForceBottom();
+  }, [loading, messages.length, scheduleForceBottom]);
 
   useEffect(() => {
     const last = messages[messages.length - 1];
-    if (!last?.id || loadingMore) return;
+    if (!last?.id || loading || loadingMore) return;
     if (last.id === lastMessageIdRef.current) return;
     lastMessageIdRef.current = last.id;
-    return scheduleBottomStick("smooth");
-  }, [messages, loadingMore, scheduleBottomStick]);
+    userScrolledRef.current = false;
+    return scheduleForceBottom();
+  }, [messages, loading, loadingMore, scheduleForceBottom]);
 
   useEffect(() => {
-    if (!typingIndicator) return;
-    if (nearBottomRef.current) stickToBottom("smooth");
-  }, [typingIndicator, stickToBottom]);
+    if (!typingIndicator || userScrolledRef.current) return;
+    forceScrollToBottom();
+  }, [typingIndicator, forceScrollToBottom]);
 
   useEffect(() => {
     if (loadingMore) {
@@ -151,8 +157,9 @@ export function ChatMessagesPanel({
     if (!loadingMore && prevHeightRef.current) {
       preserveScrollAfterPrepend(viewportRef.current, prevHeightRef.current);
       prevHeightRef.current = 0;
+      updateScrollDown();
     }
-  }, [messages.length, loadingMore]);
+  }, [messages.length, loadingMore, updateScrollDown]);
 
   useEffect(() => {
     const viewport = viewportRef.current;
@@ -160,22 +167,14 @@ export function ChatMessagesPanel({
 
     const onImageLoad = (e) => {
       if (e.target?.tagName !== "IMG") return;
-      if (nearBottomRef.current) {
-        viewport.scrollTop = viewport.scrollHeight;
-      }
-      updateScrollDown();
+      stickIfNearBottom();
     };
     viewport.addEventListener("load", onImageLoad, true);
 
     const content = viewport.firstElementChild;
     let ro;
     if (content && typeof ResizeObserver !== "undefined") {
-      ro = new ResizeObserver(() => {
-        if (nearBottomRef.current) {
-          viewport.scrollTop = viewport.scrollHeight;
-        }
-        updateScrollDown();
-      });
+      ro = new ResizeObserver(() => stickIfNearBottom());
       ro.observe(content);
     }
 
@@ -183,7 +182,7 @@ export function ChatMessagesPanel({
       viewport.removeEventListener("load", onImageLoad, true);
       ro?.disconnect();
     };
-  }, [updateScrollDown]);
+  }, [stickIfNearBottom]);
 
   if (loading) {
     return <MessagesSkeleton />;
@@ -236,7 +235,10 @@ export function ChatMessagesPanel({
       {showScrollDown && (
         <button
           type="button"
-          onClick={() => scrollToBottom("smooth")}
+          onClick={() => {
+            userScrolledRef.current = false;
+            forceScrollToBottom();
+          }}
           aria-label="Cuộn xuống tin mới nhất"
           className="absolute bottom-3 right-3 h-10 w-10 rounded-full bg-rose-500 text-white shadow-lg shadow-rose-500/30 flex items-center justify-center hover:bg-rose-600 transition-all animate-scale-in"
         >

@@ -529,7 +529,7 @@ export default function FlirtChatPage() {
       </div>
 
       <ChatMessagesPanel
-
+        key={sessionId}
         messages={messages}
 
         loading={loading}
