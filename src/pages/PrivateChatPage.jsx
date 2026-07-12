@@ -59,7 +59,6 @@ export default function PrivateChatPage() {
   const [initialReadAt, setInitialReadAt] = useState(null);
   const [hasInitialUnread, setHasInitialUnread] = useState(false);
   const bottomRef = useRef(null);
-  const lastMessageIdRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const lastTypingSentRef = useRef(0);
 
@@ -133,14 +132,6 @@ export default function PrivateChatPage() {
       clearTimeout(typingTimeoutRef.current);
     };
   }, [conversationId, subscribe, user?.id, appendMessage, patchMessage]);
-
-  useEffect(() => {
-    const last = messages[messages.length - 1];
-    if (!last || loadingMore) return;
-    if (last.id === lastMessageIdRef.current) return;
-    lastMessageIdRef.current = last.id;
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loadingMore]);
 
   const sendText = async (content, replyToId, tempId) => {
     try {

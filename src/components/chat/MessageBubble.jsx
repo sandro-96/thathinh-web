@@ -134,7 +134,7 @@ export function MessageBubble({
 
                 {hasImage && (
                   <button type="button" onClick={() => setLightbox(true)} className="block w-full leading-none" aria-label="Xem ảnh">
-                    <img src={message.imageUrl} alt="Ảnh đã gửi" loading="lazy" className="max-h-72 w-full object-cover cursor-zoom-in" />
+                    <img src={message.imageUrl} alt="Ảnh đã gửi" loading="eager" decoding="async" className="max-h-72 w-full object-cover cursor-zoom-in" />
                   </button>
                 )}
 

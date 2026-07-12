@@ -37,7 +37,6 @@ export default function TopicChatPage() {
   const lastTypingSentRef = useRef(0);
 
   const bottomRef = useRef(null);
-  const lastMessageIdRef = useRef(null);
 
   const fetchPage = useCallback(async (cursor) => {
     if (!topic?.id) return [];
@@ -96,14 +95,6 @@ export default function TopicChatPage() {
       topicPresence(topic.id, "leave").catch(() => {});
     };
   }, [topic?.id, topic?.joined, subscribe, user?.id]);
-
-  useEffect(() => {
-    const last = messages[messages.length - 1];
-    if (!last || loadingMore) return;
-    if (last.id === lastMessageIdRef.current) return;
-    lastMessageIdRef.current = last.id;
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loadingMore]);
 
   const handleJoin = async () => {
     try {

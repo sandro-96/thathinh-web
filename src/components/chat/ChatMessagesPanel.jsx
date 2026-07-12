@@ -1,5 +1,5 @@
 import { Loader2, AlertTriangle, ChevronDown } from "lucide-react";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useRef, useState } from "react";
 import { format, isToday, isYesterday, isSameDay } from "date-fns";
 import { vi } from "date-fns/locale";
 import { preserveScrollAfterPrepend } from "@/hooks/usePaginatedMessages";
@@ -54,6 +54,8 @@ function MessagesSkeleton() {
   );
 }
 
+const NEAR_BOTTOM_THRESHOLD = 320;
+
 export function ChatMessagesPanel({
   messages,
   loading,
@@ -71,36 +73,54 @@ export function ChatMessagesPanel({
 }) {
   const viewportRef = useRef(null);
   const prevHeightRef = useRef(0);
+  const lastMessageIdRef = useRef(null);
+  const nearBottomRef = useRef(true);
   const [showScrollDown, setShowScrollDown] = useState(false);
 
-  const updateScrollDown = () => {
+  const scrollToBottom = useCallback((behavior = "smooth") => {
+    const el = viewportRef.current;
+    if (!el) return;
+    el.scrollTo({ top: el.scrollHeight, behavior });
+    nearBottomRef.current = true;
+    setShowScrollDown(false);
+  }, []);
+
+  const updateScrollDown = useCallback(() => {
     const el = viewportRef.current;
     if (!el) return;
     const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-    setShowScrollDown(distanceFromBottom > 280);
-  };
+    nearBottomRef.current = distanceFromBottom <= NEAR_BOTTOM_THRESHOLD;
+    setShowScrollDown(distanceFromBottom > NEAR_BOTTOM_THRESHOLD);
+  }, []);
 
   const handleViewportScroll = (e) => {
     onScroll?.(e);
     updateScrollDown();
   };
 
-  const scrollToBottom = () => {
-    bottomRef?.current?.scrollIntoView({ behavior: "smooth" });
-    setShowScrollDown(false);
-  };
-
   useEffect(() => {
     updateScrollDown();
-  }, [messages.length]);
+  }, [messages.length, updateScrollDown]);
+
+  useEffect(() => {
+    const last = messages[messages.length - 1];
+    if (!last?.id || loadingMore) return;
+    if (last.id === lastMessageIdRef.current) return;
+    lastMessageIdRef.current = last.id;
+    scrollToBottom("smooth");
+    // Ảnh load sau scroll — bám đáy lại sau layout ổn định
+    const t1 = window.setTimeout(() => scrollToBottom("auto"), 120);
+    const t2 = window.setTimeout(() => scrollToBottom("auto"), 400);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+    };
+  }, [messages, loadingMore, scrollToBottom]);
 
   useEffect(() => {
     if (!typingIndicator) return;
-    const el = viewportRef.current;
-    if (!el) return;
-    const distance = el.scrollHeight - el.scrollTop - el.clientHeight;
-    if (distance < 160) bottomRef?.current?.scrollIntoView({ behavior: "smooth" });
-  }, [typingIndicator, bottomRef]);
+    if (nearBottomRef.current) scrollToBottom("smooth");
+  }, [typingIndicator, scrollToBottom]);
 
   useEffect(() => {
     if (loadingMore) {
@@ -114,6 +134,23 @@ export function ChatMessagesPanel({
       prevHeightRef.current = 0;
     }
   }, [messages.length, loadingMore]);
+
+  // Khi ảnh/tin mới làm đổi chiều cao list, giữ vị trí đáy nếu user đang ở gần đáy
+  useEffect(() => {
+    const viewport = viewportRef.current;
+    if (!viewport) return;
+    const content = viewport.firstElementChild;
+    if (!content || typeof ResizeObserver === "undefined") return;
+
+    const ro = new ResizeObserver(() => {
+      if (nearBottomRef.current) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
+      updateScrollDown();
+    });
+    ro.observe(content);
+    return () => ro.disconnect();
+  }, [updateScrollDown]);
 
   if (loading) {
     return <MessagesSkeleton />;
@@ -155,20 +192,26 @@ export function ChatMessagesPanel({
                 <Fragment key={m.id ?? i}>
                   {shouldShowDivider(messages[i - 1], m) && <DateDivider date={m.sentAt} />}
                   {firstUnreadMessageId && m.id === firstUnreadMessageId && <UnreadDivider />}
-                  <div style={{ contentVisibility: "auto", containIntrinsicSize: "auto 64px" }}>
+                  <div
+                    style={
+                      m.imageUrl
+                        ? undefined
+                        : { contentVisibility: "auto", containIntrinsicSize: "auto 64px" }
+                    }
+                  >
                     {renderMessage(m, i)}
                   </div>
                 </Fragment>
               ))}
           {typingIndicator}
-          <div ref={bottomRef} />
+          <div ref={bottomRef} className="h-px shrink-0" aria-hidden />
         </div>
       </div>
 
       {showScrollDown && (
         <button
           type="button"
-          onClick={scrollToBottom}
+          onClick={() => scrollToBottom("smooth")}
           aria-label="Cuộn xuống tin mới nhất"
           className="absolute bottom-3 right-3 h-10 w-10 rounded-full bg-rose-500 text-white shadow-lg shadow-rose-500/30 flex items-center justify-center hover:bg-rose-600 transition-all animate-scale-in"
         >

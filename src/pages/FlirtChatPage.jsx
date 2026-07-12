@@ -81,7 +81,6 @@ export default function FlirtChatPage() {
   const [reportReason, setReportReason] = useState(FLIRT_REPORT_REASONS[0]);
 
   const bottomRef = useRef(null);
-  const lastMessageIdRef = useRef(null);
   const typingTimeoutRef = useRef(null);
   const lastTypingSentRef = useRef(0);
 
@@ -206,18 +205,6 @@ export default function FlirtChatPage() {
     };
 
   }, [sessionId, subscribe, user?.id, appendMessage, patchMessage, navigate]);
-
-
-
-  useEffect(() => {
-    const last = messages[messages.length - 1];
-    if (!last || loadingMore) return;
-    if (last.id === lastMessageIdRef.current) return;
-    lastMessageIdRef.current = last.id;
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loadingMore]);
-
-
 
   const sendTextMsg = async (content, replyToId, tempId) => {
     try {

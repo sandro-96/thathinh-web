@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { toast } from "sonner";
 import imageCompression from "browser-image-compression";
@@ -68,8 +68,24 @@ function Segmented({ options, value, onChange }) {
   );
 }
 
+function formFromProfile(profile) {
+  if (!profile) return null;
+  return {
+    nickname: profile.nickname || "",
+    gender: profile.gender || "OTHER",
+    birthDate: profile.birthDate || "",
+    minAge: profile.preferences?.minAge || 18,
+    maxAge: profile.preferences?.maxAge || 60,
+    lookingFor: profile.preferences?.lookingFor?.length
+      ? profile.preferences.lookingFor
+      : defaultLookingFor(profile.gender || "OTHER"),
+    bio: profile.bio || "",
+    interests: profile.interests || [],
+  };
+}
+
 export default function ProfilePage() {
-  const { user, loadUser, logout } = useAuth();
+  const { user, refreshProfile, logout } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const isOnboarding = searchParams.get("onboarding") === "1" || !isProfileComplete(user);
@@ -93,23 +109,18 @@ export default function ProfilePage() {
   });
 
   const maxBirthDate = maxBirthDateFor18Plus();
+  const isDirtyRef = useRef(false);
 
   useEffect(() => {
-    if (user) {
-      setForm({
-        nickname: user.nickname || "",
-        gender: user.gender || "OTHER",
-        birthDate: user.birthDate || "",
-        minAge: user.preferences?.minAge || 18,
-        maxAge: user.preferences?.maxAge || 60,
-        lookingFor: user.preferences?.lookingFor?.length
-          ? user.preferences.lookingFor
-          : defaultLookingFor(user.gender || "OTHER"),
-        bio: user.bio || "",
-        interests: user.interests || [],
-      });
-    }
+    if (!user?.id || isDirtyRef.current) return;
+    const next = formFromProfile(user);
+    if (next) setForm(next);
   }, [user]);
+
+  const patchForm = useCallback((patch) => {
+    isDirtyRef.current = true;
+    setForm((prev) => ({ ...prev, ...patch }));
+  }, []);
 
   const loadBlocked = () => {
     if (isOnboarding) return;
@@ -159,8 +170,12 @@ export default function ProfilePage() {
         bio: form.bio.trim(),
         interests: form.interests,
       });
-      await loadUser();
-      const complete = res.data.data?.profileComplete;
+      const profile = res.data.data;
+      const next = formFromProfile(profile);
+      isDirtyRef.current = false;
+      if (next) setForm(next);
+      void refreshProfile();
+      const complete = profile?.profileComplete;
       toast.success(complete ? "Hồ sơ đã hoàn thiện!" : "Đã cập nhật hồ sơ");
       if (complete && isOnboarding) {
         navigate("/topics");
@@ -180,7 +195,7 @@ export default function ProfilePage() {
     try {
       const compressed = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 512 });
       await uploadAvatar(compressed);
-      await loadUser();
+      await refreshProfile();
       toast.success("Đã cập nhật avatar");
     } catch (err) {
       toast.error(getApiErrorMessage(err, "Không thể cập nhật avatar"));
@@ -197,7 +212,7 @@ export default function ProfilePage() {
     try {
       const compressed = await imageCompression(file, { maxSizeMB: 1, maxWidthOrHeight: 1280 });
       await addProfilePhoto(compressed);
-      await loadUser();
+      await refreshProfile();
       toast.success("Đã thêm ảnh");
     } catch (err) {
       toast.error(getApiErrorMessage(err, "Không thể thêm ảnh"));
@@ -209,7 +224,7 @@ export default function ProfilePage() {
   const onRemovePhoto = async (url) => {
     try {
       await removeProfilePhoto(url);
-      await loadUser();
+      await refreshProfile();
     } catch (err) {
       toast.error(getApiErrorMessage(err, "Không thể xoá ảnh"));
     }
@@ -231,10 +246,14 @@ export default function ProfilePage() {
       return;
     }
     setForm({ ...form, interests: [...form.interests, t] });
+    isDirtyRef.current = true;
     setInterestInput("");
   };
 
-  const removeInterest = (t) => setForm({ ...form, interests: form.interests.filter((i) => i !== t) });
+  const removeInterest = (t) => {
+    isDirtyRef.current = true;
+    setForm({ ...form, interests: form.interests.filter((i) => i !== t) });
+  };
 
   const handleLogout = async () => {
     const rt = localStorage.getItem("refreshToken");
@@ -299,7 +318,7 @@ export default function ProfilePage() {
             <Input
               value={form.nickname}
               onChange={(e) => {
-                setForm({ ...form, nickname: e.target.value });
+                patchForm({ nickname: e.target.value });
                 setNicknameError(validateNickname(e.target.value) || "");
               }}
               placeholder="3–20 ký tự"
@@ -314,7 +333,7 @@ export default function ProfilePage() {
             <Segmented
               options={GENDERS}
               value={form.gender}
-              onChange={(v) => setForm({ ...form, gender: v, lookingFor: defaultLookingFor(v) })}
+              onChange={(v) => patchForm({ gender: v, lookingFor: defaultLookingFor(v) })}
             />
           </div>
           <div className="space-y-1.5">
@@ -323,7 +342,7 @@ export default function ProfilePage() {
               type="date"
               value={form.birthDate}
               max={maxBirthDate}
-              onChange={(e) => setForm({ ...form, birthDate: e.target.value })}
+              onChange={(e) => patchForm({ birthDate: e.target.value })}
               required
             />
           </div>
@@ -342,7 +361,7 @@ export default function ProfilePage() {
             <Label>Tiểu sử</Label>
             <Textarea
               value={form.bio}
-              onChange={(e) => setForm({ ...form, bio: e.target.value })}
+              onChange={(e) => patchForm({ bio: e.target.value })}
               placeholder="Vài dòng về bạn, sở thích, điều bạn tìm kiếm..."
               maxLength={300}
               rows={3}
@@ -442,7 +461,7 @@ export default function ProfilePage() {
             <Segmented
               options={LOOKING}
               value={lookingForValue}
-              onChange={(v) => setForm({ ...form, lookingFor: v === "ALL" ? [] : [v] })}
+              onChange={(v) => patchForm({ lookingFor: v === "ALL" ? [] : [v] })}
             />
           </div>
           <div className="space-y-1.5">
@@ -454,7 +473,7 @@ export default function ProfilePage() {
                   type="number"
                   min={18}
                   value={form.minAge}
-                  onChange={(e) => setForm({ ...form, minAge: Number(e.target.value) || 18 })}
+                  onChange={(e) => patchForm({ minAge: Number(e.target.value) || 18 })}
                 />
               </div>
               <div className="space-y-1">
@@ -463,7 +482,7 @@ export default function ProfilePage() {
                   type="number"
                   min={18}
                   value={form.maxAge}
-                  onChange={(e) => setForm({ ...form, maxAge: Number(e.target.value) || 60 })}
+                  onChange={(e) => patchForm({ maxAge: Number(e.target.value) || 60 })}
                 />
               </div>
             </div>
