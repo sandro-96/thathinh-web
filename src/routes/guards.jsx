@@ -15,7 +15,13 @@ export function ProtectedRoute({ children }) {
 
 export function GuestRoute({ children }) {
   const { user, ready } = useAuth();
-  if (!ready) return null;
+  if (!ready) {
+    return (
+      <div className="min-h-dvh flex items-center justify-center text-muted-foreground">
+        Đang tải...
+      </div>
+    );
+  }
   if (user) {
     return (
       <Navigate

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { login, register } from "@/api/authApi";
-import { getCurrentUser } from "@/api/userApi";
 import { useAuth } from "@/hooks/useAuth";
 import { getPostAuthPath } from "@/lib/profile";
 import { validateNickname } from "@/lib/nicknameValidation";
@@ -33,7 +32,7 @@ export default function LoginPage() {
     gender: "OTHER",
     birthDate: "",
   });
-  const { loadUser } = useAuth();
+  const { establishSession, refreshProfile } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const maxBirthDate = maxBirthDateFor18Plus();
@@ -67,13 +66,15 @@ export default function LoginPage() {
           })
         : await login({ email: form.email, password: form.password });
       const { accessToken, refreshToken, profileComplete } = res.data.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      await loadUser();
+      establishSession(accessToken, refreshToken, { profileComplete });
       toast.success(isRegister ? "Đăng ký thành công!" : "Đăng nhập thành công!");
       if (isRegister) {
-        const profile = (await getCurrentUser()).data.data;
-        navigate(profile.verified ? getPostAuthPath(profileComplete) : "/verify-email?pending=1");
+        const profile = await refreshProfile();
+        navigate(
+          profile?.verified !== false
+            ? getPostAuthPath(profile?.profileComplete ?? profileComplete)
+            : "/verify-email?pending=1",
+        );
       } else {
         navigate(getPostAuthPath(profileComplete));
       }

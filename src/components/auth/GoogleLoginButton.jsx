@@ -9,7 +9,7 @@ import { useNavigate } from "react-router-dom";
 const clientId = import.meta.env.VITE_APP_GOOGLE_CLIENT_ID;
 
 function GoogleLoginButtonInner() {
-  const { loadUser } = useAuth();
+  const { establishSession } = useAuth();
   const navigate = useNavigate();
 
   const handleSuccess = async (credentialResponse) => {
@@ -17,9 +17,7 @@ function GoogleLoginButtonInner() {
     try {
       const res = await loginGoogle({ idToken: credentialResponse.credential });
       const { accessToken, refreshToken, profileComplete } = res.data.data;
-      localStorage.setItem("accessToken", accessToken);
-      localStorage.setItem("refreshToken", refreshToken);
-      await loadUser();
+      establishSession(accessToken, refreshToken, { profileComplete });
       toast.success("Đăng nhập Google thành công!");
       navigate(getPostAuthPath(profileComplete));
     } catch (err) {
