@@ -91,6 +91,10 @@ export function applySeoHead(opts) {
     upsertMeta("name", "description", opts.description || "");
   }
 
+  if (opts.keywords != null) {
+    upsertMeta("name", "keywords", opts.keywords || "");
+  }
+
   if (opts.noIndex != null) {
     upsertMeta(
       "name",

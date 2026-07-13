@@ -2,8 +2,8 @@ import { useState } from "react";
 import { format } from "date-fns";
 import { vi } from "date-fns/locale";
 import { CornerUpLeft, MoreHorizontal, Trash2, Loader2, AlertCircle, RotateCw } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { ClickableAvatar } from "@/components/ui/clickable-avatar";
+import { ImageLightbox } from "@/components/ui/image-lightbox";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -77,10 +77,12 @@ export function MessageBubble({
   return (
     <div className={cn("group flex w-full gap-1.5 animate-msg-in", isMine ? "flex-row-reverse" : "flex-row")}>
       {!isMine && (
-        <Avatar className="h-8 w-8 shrink-0 self-end">
-          <AvatarImage src={message.senderAvatarUrl} alt={`Ảnh đại diện của ${name}`} />
-          <AvatarFallback>{name[0]?.toUpperCase()}</AvatarFallback>
-        </Avatar>
+        <ClickableAvatar
+          className="h-8 w-8 shrink-0 self-end"
+          src={message.senderAvatarUrl}
+          alt={`Ảnh đại diện của ${name}`}
+          fallback={name[0]?.toUpperCase()}
+        />
       )}
 
       <div className={cn("flex flex-col max-w-[82%] sm:max-w-[75%]", isMine ? "items-end" : "items-start")}>
@@ -194,12 +196,12 @@ export function MessageBubble({
       </div>
 
       {hasImage && (
-        <Dialog open={lightbox} onOpenChange={setLightbox}>
-          <DialogContent className="max-w-3xl w-[95vw] p-2 bg-transparent border-0 shadow-none">
-            <DialogTitle className="sr-only">Xem ảnh</DialogTitle>
-            <img src={message.imageUrl} alt="Ảnh phóng to" className="w-full max-h-[85vh] object-contain rounded-lg" />
-          </DialogContent>
-        </Dialog>
+        <ImageLightbox
+          src={message.imageUrl}
+          alt="Ảnh phóng to"
+          open={lightbox}
+          onOpenChange={setLightbox}
+        />
       )}
     </div>
   );

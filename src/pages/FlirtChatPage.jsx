@@ -41,7 +41,7 @@ import { Button } from "@/components/ui/button";
 
 import { Input } from "@/components/ui/input";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ClickableAvatar } from "@/components/ui/clickable-avatar";
 
 import {
 
@@ -399,21 +399,27 @@ export default function FlirtChatPage() {
 
       <div className="flex items-center justify-between mb-3 pb-3 border-b">
 
-        <button
-          type="button"
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => setProfileOpen(true)}
-          className="flex items-center gap-2 min-w-0 text-left rounded-lg -ml-1 pl-1 pr-2 py-0.5 hover:bg-muted/60 transition-colors"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setProfileOpen(true);
+            }
+          }}
+          className="flex items-center gap-2 min-w-0 text-left rounded-lg -ml-1 pl-1 pr-2 py-0.5 hover:bg-muted/60 transition-colors cursor-pointer"
           aria-label="Xem hồ sơ đối phương"
         >
 
           <span className="relative shrink-0 rounded-full p-[2px] bg-gradient-to-br from-rose-400 to-pink-600">
-            <Avatar className="ring-2 ring-background">
-
-              <AvatarImage src={partner?.avatarUrl} alt={`Ảnh đại diện của ${partner?.nickname || "đối tác"}`} />
-
-              <AvatarFallback>{partner?.nickname?.[0]}</AvatarFallback>
-
-            </Avatar>
+            <ClickableAvatar
+              className="ring-2 ring-background"
+              src={partner?.avatarUrl}
+              alt={`Ảnh đại diện của ${partner?.nickname || "đối tác"}`}
+              fallback={partner?.nickname?.[0]}
+            />
           </span>
 
           <div className="min-w-0">
@@ -427,7 +433,7 @@ export default function FlirtChatPage() {
             )}
           </div>
 
-        </button>
+        </div>
 
         <div className="flex gap-1">
 

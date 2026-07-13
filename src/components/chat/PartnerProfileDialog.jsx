@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ClickableAvatar } from "@/components/ui/clickable-avatar";
+import { ImageLightbox } from "@/components/ui/image-lightbox";
 
 const GENDER_LABEL = { MALE: "Nam", FEMALE: "Nữ", OTHER: "Khác" };
 
@@ -24,10 +25,13 @@ export function PartnerProfileDialog({ open, onOpenChange, partner }) {
           <div className="space-y-4">
             <div className="flex flex-col items-center text-center gap-2">
               <span className="rounded-full p-[3px] bg-gradient-to-br from-rose-400 to-pink-600">
-                <Avatar className="h-20 w-20 ring-2 ring-background">
-                  <AvatarImage src={partner.avatarUrl} alt={`Ảnh đại diện của ${partner.nickname}`} />
-                  <AvatarFallback className="text-2xl">{partner.nickname?.[0]}</AvatarFallback>
-                </Avatar>
+                <ClickableAvatar
+                  className="h-20 w-20 ring-2 ring-background"
+                  src={partner.avatarUrl}
+                  alt={`Ảnh đại diện của ${partner.nickname}`}
+                  fallback={partner.nickname?.[0]}
+                  fallbackClassName="text-2xl"
+                />
               </span>
               <div>
                 <p className="font-semibold text-lg leading-tight">{partner.nickname || "Đối phương"}</p>
@@ -78,12 +82,12 @@ export function PartnerProfileDialog({ open, onOpenChange, partner }) {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!preview} onOpenChange={(o) => !o && setPreview(null)}>
-        <DialogContent className="max-w-3xl w-[95vw] p-2 bg-transparent border-0 shadow-none">
-          <DialogTitle className="sr-only">Xem ảnh</DialogTitle>
-          {preview && <img src={preview} alt="Ảnh phóng to" className="w-full max-h-[85vh] object-contain rounded-lg" />}
-        </DialogContent>
-      </Dialog>
+      <ImageLightbox
+        src={preview}
+        alt="Ảnh hồ sơ"
+        open={!!preview}
+        onOpenChange={(o) => !o && setPreview(null)}
+      />
     </>
   );
 }

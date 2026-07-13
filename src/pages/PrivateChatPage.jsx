@@ -26,7 +26,7 @@ import { TypingIndicator } from "@/components/chat/TypingIndicator";
 import { PartnerProfileDialog } from "@/components/chat/PartnerProfileDialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ClickableAvatar } from "@/components/ui/clickable-avatar";
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -338,17 +338,25 @@ export default function PrivateChatPage() {
         <Button variant="ghost" size="icon" asChild className="shrink-0">
           <Link to="/chats" aria-label="Quay lại danh sách trò chuyện"><ArrowLeft className="h-4 w-4" /></Link>
         </Button>
-        <button
-          type="button"
+        <div
+          role="button"
+          tabIndex={0}
           onClick={() => setProfileOpen(true)}
-          className="flex items-center gap-2 min-w-0 flex-1 text-left rounded-lg px-1 py-0.5 hover:bg-muted/60 transition-colors"
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              setProfileOpen(true);
+            }
+          }}
+          className="flex items-center gap-2 min-w-0 flex-1 text-left rounded-lg px-1 py-0.5 hover:bg-muted/60 transition-colors cursor-pointer"
           aria-label="Xem hồ sơ đối phương"
         >
           <span className="relative shrink-0">
-            <Avatar>
-              <AvatarImage src={partner?.avatarUrl} alt={`Ảnh đại diện của ${partner?.nickname || "bạn bè"}`} />
-              <AvatarFallback>{partner?.nickname?.[0]}</AvatarFallback>
-            </Avatar>
+            <ClickableAvatar
+              src={partner?.avatarUrl}
+              alt={`Ảnh đại diện của ${partner?.nickname || "bạn bè"}`}
+              fallback={partner?.nickname?.[0]}
+            />
             {meta?.partnerOnline && (
               <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-background" />
             )}
@@ -359,7 +367,7 @@ export default function PrivateChatPage() {
               {statusText}
             </p>
           </div>
-        </button>
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" aria-label="Tuỳ chọn khác"><MoreVertical className="h-4 w-4" /></Button>

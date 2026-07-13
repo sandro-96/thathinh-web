@@ -28,6 +28,7 @@ const PrivateChatPage = lazy(() => import("@/pages/PrivateChatPage"));
 const VerifyEmailPage = lazy(() => import("@/pages/VerifyEmailPage"));
 const TermsPage = lazy(() => import("@/pages/TermsPage"));
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
+const ChatLamQuenPage = lazy(() => import("@/pages/ChatLamQuenPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
 function PageFallback() {
@@ -53,6 +54,7 @@ export default function App() {
                   <Route path="/verify-email" element={<VerifyEmailPage />} />
                   <Route path="/terms" element={<TermsPage />} />
                   <Route path="/privacy" element={<PrivacyPage />} />
+                  <Route path="/chat-lam-quen-online" element={<ChatLamQuenPage />} />
                   <Route path="/topics/:slug" element={<ProtectedRoute><TopicChatPage /></ProtectedRoute>} />
                   <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                     <Route path="/topics" element={<TopicsPage />} />

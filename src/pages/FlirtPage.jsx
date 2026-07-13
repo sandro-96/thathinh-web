@@ -28,7 +28,7 @@ import { Button } from "@/components/ui/button";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ClickableAvatar } from "@/components/ui/clickable-avatar";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { formatDistanceToNow } from "date-fns";
 import { vi } from "date-fns/locale";
@@ -522,10 +522,12 @@ export default function FlirtPage() {
           <CardContent className="space-y-3">
             {history.map((h) => (
               <div key={h.sessionId} className="flex items-center gap-3">
-                <Avatar className="h-9 w-9">
-                  <AvatarImage src={h.partnerAvatarUrl} />
-                  <AvatarFallback>{h.partnerNickname?.[0]}</AvatarFallback>
-                </Avatar>
+                <ClickableAvatar
+                  className="h-9 w-9"
+                  src={h.partnerAvatarUrl}
+                  alt={`Ảnh đại diện của ${h.partnerNickname}`}
+                  fallback={h.partnerNickname?.[0]}
+                />
                 <div className="flex-1 min-w-0">
                   <p className="font-medium truncate">{h.partnerNickname}</p>
                   <p className="text-xs text-muted-foreground">

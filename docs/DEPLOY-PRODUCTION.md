@@ -1,8 +1,7 @@
 # Deploy Production — Thả Thính (AWS, dùng chung EC2 với salsales)
 
-> **Trạng thái: ⏸ CHỜ MUA DOMAIN** (cập nhật 2026-07-13)  
-> Chưa có domain → **dừng tại đây**. Sau khi mua `thathinh.vn` (hoặc domain khác), quay lại doc này và làm từ **Bước 0.1** trở đi.  
-> Code + workflow CI/CD đã sẵn trên `main` (FE `1336feb`, BE `d2d910d`).
+> **Trạng thái: 🟢 ĐANG TRIỂN KHAI** — Domain: **`thathinh.vn`** (cập nhật 2026-07-13)  
+> Tiếp tục từ **Bước 0** bên dưới. Code + workflow CI/CD đã sẵn trên `main`.
 
 ---
 
@@ -15,14 +14,14 @@ Production chạy **cùng EC2** với [salsales (sotuci.vn)](../../salsales-mana
 | EC2 | `i-08167ad5505b5b164` | **cùng máy** |
 | EIP | `13.215.133.238` | **cùng EIP** |
 | App port | `8080` (`salsales.service`) | `8081` (`thathinh.service`) |
-| API domain | `api.sotuci.vn` | `api.<domain-của-bạn>` |
+| API domain | `api.sotuci.vn` | `api.thathinh.vn` |
 | Web | S3 + CloudFront | S3 + CloudFront |
 | Region | `ap-southeast-1` | `ap-southeast-1` |
 
 ```
-Cloudflare DNS (sau khi có domain)
-  <domain> / www     → CloudFront (thathinh-web-prod)
-  api.<domain>       → A → 13.215.133.238 (Caddy → :8081)
+Cloudflare DNS
+  thathinh.vn / www     → CloudFront (thathinh-web-prod)
+  api.thathinh.vn       → A → 13.215.133.238 (Caddy → :8081)
 ```
 
 **Thay `<domain>`** bằng domain thật (ví dụ `thathinh.vn`) trong toàn bộ hướng dẫn dưới đây.
@@ -62,7 +61,7 @@ Cloudflare DNS (sau khi có domain)
 ### 0.1 Domain
 1. Mua domain (khuyến nghị: `thathinh.vn`)
 2. Trỏ nameserver về **Cloudflare**
-3. Ghi lại domain chính xác: `________________`
+3. Domain: **`thathinh.vn`**
 
 ### 0.2 MongoDB Atlas prod
 1. [MongoDB Atlas](https://cloud.mongodb.com) → cluster Singapore hoặc DB `thathinhdb`

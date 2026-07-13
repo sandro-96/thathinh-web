@@ -6,6 +6,7 @@ import process from "node:process";
 // Public, indexable URLs. Everything else in the SPA is behind auth → noindex.
 const PUBLIC_PATHS = [
   { loc: "/", priority: "1.0", changefreq: "weekly" },
+  { loc: "/chat-lam-quen-online", priority: "0.9", changefreq: "weekly" },
   { loc: "/login", priority: "0.6", changefreq: "monthly" },
   { loc: "/terms", priority: "0.3", changefreq: "yearly" },
   { loc: "/privacy", priority: "0.3", changefreq: "yearly" },

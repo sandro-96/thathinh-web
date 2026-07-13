@@ -12,7 +12,7 @@ import { getApiErrorMessage } from "@/lib/apiErrors";
 import { WS_TYPES } from "@/constants/websocket";
 import { EmptyState } from "@/components/EmptyState";
 import { ChatListSkeleton } from "@/components/chat/ChatListSkeleton";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ClickableAvatar } from "@/components/ui/clickable-avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -98,10 +98,11 @@ export default function ChatListPage() {
             <Card key={r.id} className="border-rose-200/70 dark:border-rose-500/20 bg-rose-50/40 dark:bg-rose-500/5">
               <CardContent className="pt-4 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <Avatar>
-                    <AvatarImage src={r.requesterAvatarUrl} />
-                    <AvatarFallback>{r.requesterNickname?.[0]}</AvatarFallback>
-                  </Avatar>
+                  <ClickableAvatar
+                    src={r.requesterAvatarUrl}
+                    alt={`Ảnh đại diện của ${r.requesterNickname}`}
+                    fallback={r.requesterNickname?.[0]}
+                  />
                   <div className="min-w-0">
                     <p className="font-medium truncate">{r.requesterNickname}</p>
                     <p className="text-xs text-muted-foreground">Muốn kết bạn với bạn</p>
@@ -161,10 +162,11 @@ export default function ChatListPage() {
                   >
                     <CardContent className="pt-4 flex items-center gap-3">
                       <span className="relative shrink-0">
-                        <Avatar>
-                          <AvatarImage src={c.partnerAvatarUrl} />
-                          <AvatarFallback>{c.partnerNickname?.[0]}</AvatarFallback>
-                        </Avatar>
+                        <ClickableAvatar
+                          src={c.partnerAvatarUrl}
+                          alt={`Ảnh đại diện của ${c.partnerNickname}`}
+                          fallback={c.partnerNickname?.[0]}
+                        />
                         {c.partnerOnline && (
                           <span className="absolute bottom-0 right-0 h-3 w-3 rounded-full bg-emerald-500 ring-2 ring-background" />
                         )}

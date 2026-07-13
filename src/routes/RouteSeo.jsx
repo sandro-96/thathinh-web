@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { applySeoHead } from "@/lib/seoHead";
-import { seoForPath, buildGlobalJsonLd } from "@/lib/seoConfig";
+import { seoForPath, buildPageJsonLd } from "@/lib/seoConfig";
 
 /**
  * Applies per-route document head SEO on navigation:
@@ -18,7 +18,7 @@ export function RouteSeo() {
     const seo = seoForPath(pathname);
     applySeoHead({
       ...seo,
-      jsonLd: seo.noIndex ? undefined : buildGlobalJsonLd(),
+      jsonLd: seo.noIndex ? undefined : buildPageJsonLd(pathname),
       jsonLdId: "site-jsonld",
     });
     document.documentElement.lang = "vi";

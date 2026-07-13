@@ -1,6 +1,7 @@
 # Production: set VITE_SITE_URL at build so the SEO plugin appends "Sitemap: <site>/sitemap.xml"
 User-agent: *
 Allow: /$
+Allow: /chat-lam-quen-online
 Allow: /login
 Allow: /terms
 Allow: /privacy

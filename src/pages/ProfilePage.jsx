@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { ClickableAvatar } from "@/components/ui/clickable-avatar";
 import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
 import { AlertCircle, Ban, Camera, Heart, LogOut, User as UserIcon, Loader2, Plus, X, ImagePlus, Sparkles } from "lucide-react";
 
@@ -326,16 +326,19 @@ export default function ProfilePage() {
         <div className="h-24 bg-gradient-to-r from-rose-400 to-pink-500 animate-gradient-pan" />
         <CardContent className="pt-0 pb-5">
           <div className="flex items-end gap-4 -mt-10">
-            <label className="relative cursor-pointer group shrink-0">
-              <Avatar className="h-20 w-20 ring-4 ring-background">
-                <AvatarImage src={user?.avatarUrl} />
-                <AvatarFallback className="text-2xl">{user?.nickname?.[0]}</AvatarFallback>
-              </Avatar>
-              <span className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-rose-500 text-white flex items-center justify-center ring-2 ring-background group-hover:bg-rose-600 transition-colors">
+            <div className="relative shrink-0">
+              <ClickableAvatar
+                className="h-20 w-20 ring-4 ring-background"
+                src={user?.avatarUrl}
+                alt="Ảnh đại diện của bạn"
+                fallback={user?.nickname?.[0]}
+                fallbackClassName="text-2xl"
+              />
+              <label className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-rose-500 text-white flex items-center justify-center ring-2 ring-background hover:bg-rose-600 transition-colors cursor-pointer">
                 {avatarUploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Camera className="h-3.5 w-3.5" />}
-              </span>
-              <input type="file" accept="image/*" hidden onChange={onAvatar} />
-            </label>
+                <input type="file" accept="image/*" hidden onChange={onAvatar} />
+              </label>
+            </div>
             <div className="min-w-0 pb-1">
               <p className="font-semibold text-lg truncate">{user?.nickname || "Chưa đặt nickname"}</p>
               <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
@@ -558,10 +561,12 @@ export default function ProfilePage() {
               blockedUsers.map((b) => (
                 <div key={b.userId} className="flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <Avatar className="h-9 w-9">
-                      <AvatarImage src={b.avatarUrl} />
-                      <AvatarFallback>{b.nickname?.[0]}</AvatarFallback>
-                    </Avatar>
+                    <ClickableAvatar
+                      className="h-9 w-9"
+                      src={b.avatarUrl}
+                      alt={`Ảnh đại diện của ${b.nickname}`}
+                      fallback={b.nickname?.[0]}
+                    />
                     <div className="min-w-0">
                       <p className="font-medium truncate">{b.nickname}</p>
                       {b.blockedAt && (
