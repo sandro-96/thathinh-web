@@ -5,6 +5,58 @@ import { ImagePlus, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const MAX_IMAGES = 6;
+const MAX_PICK_BYTES = 15 * 1024 * 1024;
+const MAX_UPLOAD_BYTES = 5 * 1024 * 1024;
+
+function isMobileDevice() {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+
+function isHeic(file) {
+  const type = (file.type || "").toLowerCase();
+  const name = (file.name || "").toLowerCase();
+  return type.includes("heic") || type.includes("heif") || /\.hei[cf]$/.test(name);
+}
+
+/** Một số gallery mobile không set MIME — nhận theo type hoặc đuôi file. */
+function isImageFile(file) {
+  if (file.type?.startsWith("image/")) return true;
+  return /\.(jpe?g|png|gif|webp|hei[cf])$/i.test(file.name || "");
+}
+
+/**
+ * Nén ảnh cho chat. Mobile: tắt Web Worker, fallback file gốc nếu ≤5MB.
+ */
+async function prepareChatImage(file) {
+  const mobile = isMobileDevice();
+  const baseOpts = {
+    maxSizeMB: 1.5,
+    maxWidthOrHeight: 1600,
+    useWebWorker: !mobile,
+    fileType: "image/jpeg",
+  };
+
+  try {
+    let out = await imageCompression(file, baseOpts);
+    if (out.size > MAX_UPLOAD_BYTES) {
+      out = await imageCompression(file, {
+        ...baseOpts,
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1280,
+        useWebWorker: false,
+      });
+    }
+    return out;
+  } catch {
+    if (isHeic(file)) {
+      throw new Error("HEIC");
+    }
+    if (file.size <= MAX_UPLOAD_BYTES && isImageFile(file)) {
+      return file;
+    }
+    throw new Error("COMPRESS");
+  }
+}
 
 /**
  * Nút đính ảnh cho khung chat (chỉ dùng ở chat riêng & thả thính đã match).
@@ -20,12 +72,12 @@ export function ChatImageButton({ onSend, disabled }) {
     e.target.value = "";
     if (selected.length === 0) return;
 
-    const images = selected.filter((f) => f.type.startsWith("image/"));
+    const images = selected.filter(isImageFile);
     if (images.length === 0) {
       toast.error("Chỉ hỗ trợ gửi ảnh");
       return;
     }
-    if (images.some((f) => f.size > 15 * 1024 * 1024)) {
+    if (images.some((f) => f.size > MAX_PICK_BYTES)) {
       toast.error("Có ảnh quá lớn (tối đa 15MB)");
       return;
     }
@@ -36,18 +88,22 @@ export function ChatImageButton({ onSend, disabled }) {
 
     setUploading(true);
     try {
-      const compressed = await Promise.all(
-        limited.map((file) =>
-          imageCompression(file, {
-            maxSizeMB: 1.5,
-            maxWidthOrHeight: 1600,
-            useWebWorker: true,
-          })
-        )
-      );
-      await onSend(compressed);
+      const prepared = [];
+      for (const file of limited) {
+        try {
+          prepared.push(await prepareChatImage(file));
+        } catch (err) {
+          if (err?.message === "HEIC") {
+            toast.error("Ảnh HEIC: chọn từ Thư viện hoặc chụp lại bằng Camera");
+          } else {
+            toast.error("Không xử lý được ảnh này. Thử ảnh nhỏ hơn hoặc chụp lại.");
+          }
+          return;
+        }
+      }
+      await onSend(prepared);
     } catch {
-      toast.error("Không thể gửi ảnh");
+      toast.error("Không thể gửi ảnh lên máy chủ");
     } finally {
       setUploading(false);
     }
