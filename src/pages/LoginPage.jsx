@@ -6,6 +6,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { getPostAuthPath } from "@/lib/profile";
 import { validateNickname } from "@/lib/nicknameValidation";
 import { getApiErrorMessage } from "@/lib/apiErrors";
+import { trackLogin, trackSignUp } from "@/lib/analytics";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -67,6 +68,11 @@ export default function LoginPage() {
         : await login({ email: form.email, password: form.password });
       const { accessToken, refreshToken, profileComplete } = res.data.data;
       establishSession(accessToken, refreshToken, { profileComplete });
+      if (isRegister) {
+        trackSignUp("email");
+      } else {
+        trackLogin("email");
+      }
       toast.success(isRegister ? "Đăng ký thành công!" : "Đăng nhập thành công!");
       if (isRegister) {
         const profile = await refreshProfile();

@@ -7,6 +7,9 @@ import process from "node:process";
 const PUBLIC_PATHS = [
   { loc: "/", priority: "1.0", changefreq: "weekly" },
   { loc: "/chat-lam-quen-online", priority: "0.9", changefreq: "weekly" },
+  { loc: "/chat-lam-quen-tphcm", priority: "0.85", changefreq: "weekly" },
+  { loc: "/chat-theo-so-thich", priority: "0.85", changefreq: "weekly" },
+  { loc: "/hen-ho-online-an-toan", priority: "0.85", changefreq: "weekly" },
   { loc: "/login", priority: "0.6", changefreq: "monthly" },
   { loc: "/terms", priority: "0.3", changefreq: "yearly" },
   { loc: "/privacy", priority: "0.3", changefreq: "yearly" },

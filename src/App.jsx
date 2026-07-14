@@ -15,6 +15,7 @@ import {
 } from "@/routes/guards";
 import { HomeRoute } from "@/routes/HomeRoute";
 import { RouteSeo } from "@/routes/RouteSeo";
+import { SEO_LONG_TAIL_PATHS } from "@/lib/seoLongTailPages";
 
 const LoginPage = lazy(() => import("@/pages/LoginPage"));
 const TopicsPage = lazy(() => import("@/pages/TopicsPage"));
@@ -29,6 +30,7 @@ const VerifyEmailPage = lazy(() => import("@/pages/VerifyEmailPage"));
 const TermsPage = lazy(() => import("@/pages/TermsPage"));
 const PrivacyPage = lazy(() => import("@/pages/PrivacyPage"));
 const ChatLamQuenPage = lazy(() => import("@/pages/ChatLamQuenPage"));
+const SeoLongTailPage = lazy(() => import("@/pages/SeoLongTailPage"));
 const NotFoundPage = lazy(() => import("@/pages/NotFoundPage"));
 
 function PageFallback() {
@@ -55,6 +57,9 @@ export default function App() {
                   <Route path="/terms" element={<TermsPage />} />
                   <Route path="/privacy" element={<PrivacyPage />} />
                   <Route path="/chat-lam-quen-online" element={<ChatLamQuenPage />} />
+                  {SEO_LONG_TAIL_PATHS.map((path) => (
+                    <Route key={path} path={path} element={<SeoLongTailPage />} />
+                  ))}
                   <Route path="/topics/:slug" element={<ProtectedRoute><TopicChatPage /></ProtectedRoute>} />
                   <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                     <Route path="/topics" element={<TopicsPage />} />

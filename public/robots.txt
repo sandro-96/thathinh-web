@@ -2,6 +2,9 @@
 User-agent: *
 Allow: /$
 Allow: /chat-lam-quen-online
+Allow: /chat-lam-quen-tphcm
+Allow: /chat-theo-so-thich
+Allow: /hen-ho-online-an-toan
 Allow: /login
 Allow: /terms
 Allow: /privacy

@@ -1,4 +1,5 @@
 import { getSiteUrl, absoluteUrl } from "@/lib/siteUrl";
+import { SEO_LONG_TAIL_PAGES } from "@/lib/seoLongTailPages";
 
 export const BRAND = "Thả Thính";
 export const DEFAULT_TITLE =
@@ -32,6 +33,11 @@ export const SEO_KEYWORDS = [
   "badoo việt nam",
   "omegle việt nam",
   "thay thế tinder",
+  "chat làm quen tphcm",
+  "chat theo sở thích",
+  "phòng chat theo sở thích",
+  "hẹn hò online an toàn",
+  "chat làm quen sài gòn",
   "app làm quen",
 ].join(", ");
 
@@ -110,6 +116,12 @@ const ROUTES = {
       "Tìm chat người lạ, chat ngẫu nhiên, hẹn hò online tại Việt Nam? Thả Thính — ghép đôi 1:1 & phòng chat theo sở thích. Lựa chọn thay thế Tinder, Badoo, Người Lạ Ơi (nguoilaoi). Miễn phí.",
     index: true,
   },
+  ...Object.fromEntries(
+    Object.entries(SEO_LONG_TAIL_PAGES).map(([path, page]) => [
+      path,
+      { title: page.title, description: page.description, index: true },
+    ]),
+  ),
 };
 
 /** Resolve SEO metadata for a pathname. Unknown/private paths → noindex. */
@@ -204,8 +216,8 @@ export function buildPageJsonLd(pathname) {
   if (clean === "/") return buildLandingJsonLd();
   const cfg = ROUTES[clean];
   if (!cfg?.index) return undefined;
-  if (clean === "/chat-lam-quen-online") {
-    const global = buildGlobalJsonLd() || [];
+  const global = buildGlobalJsonLd() || [];
+  if (clean === "/chat-lam-quen-online" || SEO_LONG_TAIL_PAGES[clean]) {
     return [
       ...global,
       {

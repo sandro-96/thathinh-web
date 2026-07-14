@@ -182,7 +182,19 @@ export default function LandingPage() {
           thathinh.vn — Dành cho người từ 18 tuổi trở lên
           <span className="block mt-2">
             <Link to="/chat-lam-quen-online" className="hover:underline">
-              Chat người lạ &amp; hẹn hò online
+              Chat người lạ
+            </Link>
+            {" · "}
+            <Link to="/chat-lam-quen-tphcm" className="hover:underline">
+              Chat TP.HCM
+            </Link>
+            {" · "}
+            <Link to="/chat-theo-so-thich" className="hover:underline">
+              Chat theo sở thích
+            </Link>
+            {" · "}
+            <Link to="/hen-ho-online-an-toan" className="hover:underline">
+              Hẹn hò an toàn
             </Link>
             {" · "}
             <Link to="/terms" className="hover:underline">

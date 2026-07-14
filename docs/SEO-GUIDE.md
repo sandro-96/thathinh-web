@@ -26,6 +26,13 @@ Trang chuyên dụng: **https://thathinh.vn/chat-lam-quen-online** — nội dun
 ### Long-tail (nên ưu tiên giai đoạn đầu)
 - `app thả thính online`, `chat làm quen theo sở thích`
 - `ghép đôi chat 1:1 miễn phí`, `hẹn hò ẩn danh việt nam`
+- `chat làm quen tphcm`, `chat làm quen sài gòn`
+- `phòng chat theo sở thích`, `hẹn hò online an toàn`
+
+Trang long-tail đã có:
+- https://thathinh.vn/chat-lam-quen-tphcm
+- https://thathinh.vn/chat-theo-so-thich
+- https://thathinh.vn/hen-ho-online-an-toan
 
 Meta keywords nằm trong `index.html` và `src/lib/seoConfig.js`.  
 **Google gần như không dùng thẻ keywords** — quan trọng hơn: **title, description, nội dung landing, FAQ, schema JSON-LD**.
@@ -38,6 +45,9 @@ Meta keywords nằm trong `index.html` và `src/lib/seoConfig.js`.
 |-----|---------|
 | `/` | Landing + FAQ + schema FAQPage |
 | `/chat-lam-quen-online` | Chat người lạ, Tinder/Badoo/nguoilaoi (comparison SEO) |
+| `/chat-lam-quen-tphcm` | Chat làm quen TP.HCM / Sài Gòn |
+| `/chat-theo-so-thich` | Phòng chat theo sở thích |
+| `/hen-ho-online-an-toan` | Hẹn hò online an toàn |
 | `/login` | Đăng ký |
 | `/terms` | Điều khoản |
 | `/privacy` | Chính sách |
@@ -112,6 +122,8 @@ Trong khi SEO organic lên chậm:
 - Chạy quảng cáo tìm kiếm cho `chat làm quen`, `hẹn hò online`
 - Landing `thathinh.vn` với CTA đăng ký
 - Đo conversion, tối ưu từ khóa có CPC hợp lý
+
+**Hướng dẫn chi tiết:** [`docs/GOOGLE-ADS-GUIDE.md`](./GOOGLE-ADS-GUIDE.md)
 
 #### F. Social & branded search
 - Video TikTok/Reels: "app thả thính là gì"
