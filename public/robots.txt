@@ -13,6 +13,7 @@ Allow: /privacy
 Disallow: /topics
 Disallow: /chats
 Disallow: /flirt
+Disallow: /nearby
 Disallow: /profile
 Disallow: /admin
 Disallow: /verify-email
