@@ -1,6 +1,7 @@
 import axiosInstance from "./axiosInstance";
 
 export const listFriendRequests = () => axiosInstance.get("/friends/requests");
+export const sendFriendRequest = (partnerId) => axiosInstance.post(`/friends/${partnerId}/request`);
 export const listBlockedUsers = () => axiosInstance.get("/friends/blocked");
 export const acceptFriendRequest = (id) => axiosInstance.post(`/friends/requests/${id}/accept`);
 export const declineFriendRequest = (id) => axiosInstance.post(`/friends/requests/${id}/decline`);

@@ -18,8 +18,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClickableAvatar } from "@/components/ui/clickable-avatar";
+import { GenderAvatar } from "@/components/ui/gender-avatar";
+import { AvatarPickerDialog } from "@/components/AvatarPickerDialog";
 import { NotificationSettingsCard } from "@/components/NotificationSettingsCard";
-import { AlertCircle, Ban, Camera, Heart, LogOut, User as UserIcon, Loader2, Plus, X, ImagePlus, Sparkles } from "lucide-react";
+import { AlertCircle, Ban, Camera, Heart, LogOut, User as UserIcon, Loader2, Plus, X, ImagePlus, Sparkles, LayoutGrid } from "lucide-react";
 
 function maxBirthDateFor18Plus() {
   const d = new Date();
@@ -114,6 +116,7 @@ export default function ProfilePage() {
   const [saving, setSaving] = useState(false);
   const [avatarUploading, setAvatarUploading] = useState(false);
   const [photoUploading, setPhotoUploading] = useState(false);
+  const [avatarPickerOpen, setAvatarPickerOpen] = useState(false);
   const [interestInput, setInterestInput] = useState("");
   const [form, setForm] = useState({
     nickname: "",
@@ -304,6 +307,13 @@ export default function ProfilePage() {
 
   return (
     <div className="space-y-5 pb-4">
+      <AvatarPickerDialog
+        open={avatarPickerOpen}
+        onOpenChange={setAvatarPickerOpen}
+        gender={user?.gender}
+        currentUrl={user?.avatarUrl}
+        onChosen={refreshProfile}
+      />
       <h1 className="text-xl sm:text-2xl font-bold animate-fade-up">
         {isOnboarding ? "Hoàn thiện hồ sơ" : "Hồ sơ"}
       </h1>
@@ -327,13 +337,22 @@ export default function ProfilePage() {
         <CardContent className="pt-0 pb-5">
           <div className="flex items-end gap-4 -mt-10">
             <div className="relative shrink-0">
-              <ClickableAvatar
-                className="h-20 w-20 ring-4 ring-background"
+              <GenderAvatar
+                gender={user?.gender}
+                className="h-20 w-20"
                 src={user?.avatarUrl}
                 alt="Ảnh đại diện của bạn"
                 fallback={user?.nickname?.[0]}
                 fallbackClassName="text-2xl"
               />
+              <button
+                type="button"
+                onClick={() => setAvatarPickerOpen(true)}
+                aria-label="Chọn avatar có sẵn"
+                className="absolute bottom-0 left-0 h-7 w-7 rounded-full bg-background text-rose-500 border flex items-center justify-center ring-2 ring-background hover:bg-muted transition-colors"
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+              </button>
               <label className="absolute bottom-0 right-0 h-7 w-7 rounded-full bg-rose-500 text-white flex items-center justify-center ring-2 ring-background hover:bg-rose-600 transition-colors cursor-pointer">
                 {avatarUploading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Camera className="h-3.5 w-3.5" />}
                 <input type="file" accept="image/*" hidden onChange={onAvatar} />

@@ -25,6 +25,7 @@ const FlirtChatPage = lazy(() => import("@/pages/FlirtChatPage"));
 const ProfilePage = lazy(() => import("@/pages/ProfilePage"));
 const AdminPage = lazy(() => import("@/pages/AdminPage"));
 const ChatListPage = lazy(() => import("@/pages/ChatListPage"));
+const NearbyPage = lazy(() => import("@/pages/NearbyPage"));
 const PrivateChatPage = lazy(() => import("@/pages/PrivateChatPage"));
 const VerifyEmailPage = lazy(() => import("@/pages/VerifyEmailPage"));
 const TermsPage = lazy(() => import("@/pages/TermsPage"));
@@ -63,6 +64,7 @@ export default function App() {
                   <Route path="/topics/:slug" element={<ProtectedRoute><TopicChatPage /></ProtectedRoute>} />
                   <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
                     <Route path="/topics" element={<TopicsPage />} />
+                    <Route path="/nearby" element={<NearbyPage />} />
                     <Route path="/chats" element={<ChatListPage />} />
                     <Route path="/chats/:conversationId" element={<PrivateChatPage />} />
                     <Route path="/profile" element={<ProfilePage />} />

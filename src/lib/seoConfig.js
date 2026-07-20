@@ -39,6 +39,12 @@ export const SEO_KEYWORDS = [
   "hẹn hò online an toàn",
   "chat làm quen sài gòn",
   "app làm quen",
+  "tìm người quanh đây",
+  "hẹn hò gần đây",
+  "chat với người gần bạn",
+  "tìm bạn gần đây",
+  "kết bạn gần đây",
+  "người ấy quanh đây",
 ].join(", ");
 
 export const LANDING_FAQ = [
@@ -66,6 +72,11 @@ export const LANDING_FAQ = [
     question: "Phòng chat theo topic là gì?",
     answer:
       "Là phòng công cộng theo chủ đề — ví dụ theo khu vực hoặc sở thích — nơi nhiều người cùng trò chuyện. Phù hợp nếu bạn muốn làm quen thoải mái trước khi chat riêng.",
+  },
+  {
+    question: "Tính năng Tìm quanh đây hoạt động thế nào?",
+    answer:
+      "Khi bạn tự nguyện bật chia sẻ vị trí, Thả Thính hiển thị những người dùng đang ở gần theo bán kính bạn chọn cùng khoảng cách ước tính, để bạn gửi lời kết bạn. Bạn có thể tắt chia sẻ vị trí bất cứ lúc nào trong Hồ sơ.",
   },
   {
     question: "Ai được dùng Thả Thính?",

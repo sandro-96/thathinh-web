@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Heart, MessageCircle, User, Shield, Inbox } from "lucide-react";
+import { Heart, MessageCircle, User, Shield, Inbox, MapPin } from "lucide-react";
 import { toast } from "sonner";
 import { myTopics } from "@/api/topicApi";
 import { listConversations } from "@/api/conversationApi";
@@ -20,8 +20,9 @@ import { ConnectionBanner } from "@/components/ConnectionBanner";
 
 const tabs = [
   { to: "/topics", icon: MessageCircle, label: "Topic" },
-  { to: "/chats", icon: Inbox, label: "Tin nhắn" },
   { to: "/flirt", icon: Heart, label: "Thả thính" },
+  { to: "/nearby", icon: MapPin, label: "Quanh đây" },
+  { to: "/chats", icon: Inbox, label: "Tin nhắn" },
   { to: "/profile", icon: User, label: "Hồ sơ" },
 ];
 
@@ -265,7 +266,7 @@ export function AppLayout() {
                   key={to}
                   to={tabHref(to)}
                   className={cn(
-                    "flex flex-col items-center gap-0.5 px-4 py-1 text-[11px] relative transition-colors active:scale-95",
+                    "flex flex-col items-center gap-0.5 px-2 py-1 text-[10px] relative transition-colors active:scale-95",
                     active ? "text-rose-600" : "text-muted-foreground"
                   )}
                 >

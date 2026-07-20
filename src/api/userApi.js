@@ -15,3 +15,9 @@ export const addProfilePhoto = (file) => {
 };
 export const removeProfilePhoto = (url) =>
   axiosInstance.delete("/user/me/photos", { params: { url } });
+export const getAvatarPresets = () => axiosInstance.get("/user/avatar-presets");
+export const chooseAvatarPreset = (seed) =>
+  axiosInstance.post("/user/me/avatar/preset", { seed });
+export const updateLocation = (latitude, longitude) =>
+  axiosInstance.put("/user/me/location", { latitude, longitude });
+export const disableLocation = () => axiosInstance.delete("/user/me/location");

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Heart, MessageCircle, Shield, Sparkles, Users, Zap } from "lucide-react";
+import { Heart, MessageCircle, MapPin, Shield, Sparkles, Users, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { LANDING_FAQ } from "@/lib/seoConfig";
 
@@ -13,6 +13,11 @@ const features = [
     icon: Heart,
     title: "Thả thính ghép đôi 1:1",
     desc: "Ghép ngẫu nhiên với người online phù hợp sở thích. Chat riêng, kết bạn, kết thúc hoặc báo cáo bất cứ lúc nào.",
+  },
+  {
+    icon: MapPin,
+    title: "Tìm quanh đây",
+    desc: "Khám phá người dùng đang ở gần bạn theo bán kính. Xem khoảng cách, gửi lời kết bạn — chia sẻ vị trí hoàn toàn tự nguyện.",
   },
   {
     icon: Shield,
@@ -30,7 +35,7 @@ const steps = [
   {
     icon: MessageCircle,
     title: "Chọn cách kết nối",
-    desc: "Vào phòng topic để trò chuyện cộng đồng, hoặc bấm Thả thính để ghép đôi 1:1.",
+    desc: "Vào phòng topic để trò chuyện cộng đồng, bấm Thả thính để ghép đôi 1:1, hoặc mở Quanh đây để tìm người ở gần.",
   },
   {
     icon: Zap,
@@ -98,14 +103,15 @@ export default function LandingPage() {
           </p>
           <p>
             Dù bạn tìm bạn bè cùng sở thích, muốn{" "}
-            <strong className="text-foreground">làm quen người lạ</strong> an toàn, hay thử hình thức{" "}
-            <strong className="text-foreground">dating online</strong> nhẹ nhàng — Thả Thính tập trung
-            vào trải nghiệm chat thật, không cần vuốt hàng trăm profile.
+            <strong className="text-foreground">làm quen người lạ</strong> an toàn, thử hình thức{" "}
+            <strong className="text-foreground">dating online</strong> nhẹ nhàng, hay{" "}
+            <strong className="text-foreground">tìm người quanh đây</strong> để kết bạn gần bạn — Thả Thính
+            tập trung vào trải nghiệm chat thật, không cần vuốt hàng trăm profile.
           </p>
         </section>
 
         {/* Features */}
-        <section className="grid md:grid-cols-3 gap-6 mb-14" aria-labelledby="features-heading">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-14" aria-labelledby="features-heading">
           <h2 id="features-heading" className="sr-only">
             Tính năng chính
           </h2>
