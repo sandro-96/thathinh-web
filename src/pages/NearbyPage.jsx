@@ -12,6 +12,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { GenderAvatar } from "@/components/ui/gender-avatar";
 
 const RADIUS_OPTIONS = [5, 10, 25, 50];
+const MIN_SEARCH_MS = 1300;
 
 function formatDistance(km) {
   if (km < 1) return `${Math.round(km * 1000)} m`;
@@ -27,8 +28,15 @@ export default function NearbyPage() {
 
   const fetchNearby = useCallback(async (r) => {
     setLoading(true);
+    const startedAt = Date.now();
     try {
       const res = await getNearby(r);
+      // Giữ animation radar tối thiểu MIN_SEARCH_MS để "có cảm giác đang tìm"
+      // mà không cố tình làm chậm khi API/mạng chậm.
+      const elapsed = Date.now() - startedAt;
+      if (elapsed < MIN_SEARCH_MS) {
+        await new Promise((resolve) => setTimeout(resolve, MIN_SEARCH_MS - elapsed));
+      }
       setPeople(res.data.data || []);
       setLocated(true);
     } catch (err) {
@@ -158,7 +166,7 @@ export default function NearbyPage() {
             <Button
               size="sm"
               variant="ghost"
-              onClick={() => fetchNearby(radius)}
+              onClick={enableAndSearch}
               disabled={loading}
               className="gap-1.5"
             >
@@ -218,7 +226,7 @@ export default function NearbyPage() {
               <p>Chưa có ai trong bán kính {radius} km.</p>
               <p className="text-sm">Thử tăng bán kính hoặc tìm lại nhé.</p>
             </div>
-            <Button onClick={() => fetchNearby(radius)} className="bg-rose-500 hover:bg-rose-600 gap-1.5">
+            <Button onClick={enableAndSearch} className="bg-rose-500 hover:bg-rose-600 gap-1.5">
               <RefreshCw className="h-4 w-4" /> Tìm lại
             </Button>
           </CardContent>
