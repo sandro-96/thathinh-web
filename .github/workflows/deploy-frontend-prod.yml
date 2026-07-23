@@ -53,6 +53,7 @@ jobs:
           VITE_APP_GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID_PROD }}
           VITE_GA_MEASUREMENT_ID: ${{ secrets.VITE_GA_MEASUREMENT_ID }}
           VITE_GOOGLE_ADS_CONVERSION_SEND_TO: ${{ secrets.VITE_GOOGLE_ADS_CONVERSION_SEND_TO }}
+          # VITE_META_PIXEL_ID lấy từ .env.production (checkout) — không set env rỗng ở đây.
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
