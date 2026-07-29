@@ -66,10 +66,15 @@ jobs:
           aws s3 sync dist/ "s3://${S3_BUCKET}/" \
             --delete \
             --cache-control "public,max-age=31536000,immutable" \
-            --exclude "index.html" \
+            --exclude "*index.html" \
             --exclude "sitemap.xml" \
             --exclude "robots.txt"
-          aws s3 cp dist/index.html "s3://${S3_BUCKET}/index.html" \
+          # index.html gốc + bản pre-render của từng route SEO (dist/<path>/index.html).
+          # Cache ngắn để đổi meta là thấy ngay, khác hẳn asset có hash.
+          aws s3 cp dist/ "s3://${S3_BUCKET}/" \
+            --recursive \
+            --exclude "*" \
+            --include "*index.html" \
             --cache-control "public,max-age=60,must-revalidate" \
             --content-type "text/html; charset=utf-8"
           if [ -f dist/sitemap.xml ]; then

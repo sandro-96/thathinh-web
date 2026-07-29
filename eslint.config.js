@@ -5,7 +5,8 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  // infra/: CloudFront Functions chạy trên runtime riêng của AWS, không phải app code.
+  globalIgnores(['dist', 'infra']),
   {
     files: ['**/*.{js,jsx}'],
     extends: [

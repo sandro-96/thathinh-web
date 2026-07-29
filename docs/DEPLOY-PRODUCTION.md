@@ -126,6 +126,28 @@ Lưu **Distribution ID** (`E...`) → GitHub secret `CF_DISTRIBUTION_ID` (repo `
 
 Áp bucket policy OAC cho `thathinh-web-prod`.
 
+### 2.3 CloudFront Function — index.html trong thư mục con
+
+Build sinh HTML riêng cho từng trang SEO (`dist/chat-lam-quen-online/index.html`…) để
+canonical/title/description đúng ngay trong HTML thô. Với origin S3 REST (OAC),
+CloudFront không tự resolve `index.html` của thư mục con, nên cần function này —
+thiếu nó thì mọi URL lại rơi về `/index.html` với canonical trỏ trang chủ.
+
+1. CloudFront → **Functions** → **Create function**
+   - Name: `thathinh-index-rewrite`
+   - Runtime: `cloudfront-js-2.0`
+2. Dán nội dung `infra/cloudfront-index-rewrite.js` → **Save** → **Publish**
+3. Distribution → **Behaviors** → Default (`*`) → **Edit**
+   - Function associations → **Viewer request** → CloudFront Functions → chọn `thathinh-index-rewrite`
+4. Save, đợi deploy, rồi kiểm tra:
+
+```bash
+curl -s https://thathinh.vn/chat-lam-quen-online | grep -i canonical
+# kỳ vọng: <link rel="canonical" href="https://thathinh.vn/chat-lam-quen-online" ...>
+```
+
+Nếu vẫn thấy `href="https://thathinh.vn/"` nghĩa là function chưa gắn vào behavior.
+
 ---
 
 ## Bước 3 — IAM (10 phút)

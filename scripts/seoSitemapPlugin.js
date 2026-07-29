@@ -3,17 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 
-// Public, indexable URLs. Everything else in the SPA is behind auth → noindex.
-const PUBLIC_PATHS = [
-  { loc: "/", priority: "1.0", changefreq: "weekly" },
-  { loc: "/chat-lam-quen-online", priority: "0.9", changefreq: "weekly" },
-  { loc: "/chat-lam-quen-tphcm", priority: "0.85", changefreq: "weekly" },
-  { loc: "/chat-theo-so-thich", priority: "0.85", changefreq: "weekly" },
-  { loc: "/hen-ho-online-an-toan", priority: "0.85", changefreq: "weekly" },
-  { loc: "/login", priority: "0.6", changefreq: "monthly" },
-  { loc: "/terms", priority: "0.3", changefreq: "yearly" },
-  { loc: "/privacy", priority: "0.3", changefreq: "yearly" },
-];
+import { PUBLIC_ROUTES } from "../src/lib/seoRoutes.js";
 
 function siteBase() {
   return (process.env.VITE_SITE_URL || "").trim().replace(/\/+$/, "");
@@ -35,6 +25,10 @@ function xmlEscape(s) {
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&apos;");
+}
+
+function htmlEscape(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
 
 /**
@@ -63,17 +57,70 @@ function injectBuildOgIntoHtml(html, base) {
   return out.replace("</head>", `${buildOgMetaBlock(base)}\n  </head>`);
 }
 
+/** Thay content của một thẻ meta đã có sẵn trong index.html. */
+function replaceMetaContent(html, attr, name, value) {
+  const pattern = new RegExp(`(<meta\\s+${attr}="${name}"[^>]*\\scontent=")[^"]*(")`, "i");
+  return html.replace(pattern, `$1${attrEscape(value)}$2`);
+}
+
+/**
+ * Sinh HTML riêng cho một route từ index.html đã build.
+ *
+ * SPA chỉ có một index.html, nên nếu mọi URL cùng dùng file đó thì canonical
+ * (trỏ về "/") sẽ báo cho Googlebot rằng các trang long-tail chỉ là bản sao của
+ * trang chủ — trang bị kẹt ở "Discovered - currently not indexed". React sửa
+ * head lúc runtime, nhưng lượt crawl đầu thường đọc HTML thô trước khi chạy JS.
+ */
+function renderRouteHtml(indexHtml, base, routePath, route) {
+  const url = `${base}${routePath}`;
+  let html = indexHtml;
+
+  html = html.replace(/<title>[\s\S]*?<\/title>/i, `<title>${htmlEscape(route.title)}</title>`);
+  html = replaceMetaContent(html, "name", "description", route.description);
+  html = replaceMetaContent(html, "property", "og:title", route.title);
+  html = replaceMetaContent(html, "property", "og:description", route.description);
+  html = replaceMetaContent(html, "property", "og:image:alt", route.title);
+  html = replaceMetaContent(html, "name", "twitter:title", route.title);
+  html = replaceMetaContent(html, "name", "twitter:description", route.description);
+  html = replaceMetaContent(html, "property", "og:url", url);
+  html = html.replace(/(<link\s+rel="canonical"[^>]*\shref=")[^"]*(")/i, `$1${attrEscape(url)}$2`);
+
+  if (route.keywords) {
+    html = replaceMetaContent(html, "name", "keywords", route.keywords);
+  }
+
+  return html;
+}
+
+function writeRouteHtmlFiles(outDir, base, indexHtml) {
+  const written = [];
+  for (const [routePath, route] of Object.entries(PUBLIC_ROUTES)) {
+    if (routePath === "/") continue;
+    const dir = path.join(outDir, routePath.replace(/^\//, ""));
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(
+      path.join(dir, "index.html"),
+      renderRouteHtml(indexHtml, base, routePath, route),
+      "utf8",
+    );
+    written.push(routePath);
+  }
+  return written;
+}
+
 function buildSitemapXml(base) {
   const lastmod = new Date().toISOString().slice(0, 10);
-  const urls = PUBLIC_PATHS.map(({ loc, priority, changefreq }) => {
-    const fullLoc = `${base}${loc}`;
-    return `  <url>
+  const urls = Object.entries(PUBLIC_ROUTES)
+    .map(([loc, { priority, changefreq }]) => {
+      const fullLoc = `${base}${loc}`;
+      return `  <url>
     <loc>${xmlEscape(fullLoc)}</loc>
     <lastmod>${lastmod}</lastmod>
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`;
-  }).join("\n");
+    })
+    .join("\n");
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -96,8 +143,9 @@ function ensureSitemapInRobots(outDir, base) {
 }
 
 /**
- * Writes dist/sitemap.xml, ensures robots.txt has the Sitemap directive, and
- * injects absolute OG meta into index.html — all when VITE_SITE_URL is set.
+ * Writes dist/sitemap.xml, pre-renders one HTML file per public route, ensures
+ * robots.txt has the Sitemap directive, and injects absolute OG meta into
+ * index.html — all when VITE_SITE_URL is set.
  */
 export function seoSitemapPlugin() {
   return {
@@ -111,7 +159,7 @@ export function seoSitemapPlugin() {
       const base = siteBase();
       if (!base) {
         console.warn(
-          "[seo-sitemap] VITE_SITE_URL not set — sitemap.xml & robots Sitemap directive skipped.",
+          "[seo-sitemap] VITE_SITE_URL not set — sitemap.xml, per-route HTML & robots Sitemap directive skipped.",
         );
         return;
       }
@@ -119,6 +167,14 @@ export function seoSitemapPlugin() {
       fs.mkdirSync(outDir, { recursive: true });
       fs.writeFileSync(path.join(outDir, "sitemap.xml"), buildSitemapXml(base), "utf8");
       ensureSitemapInRobots(outDir, base);
+
+      const indexPath = path.join(outDir, "index.html");
+      if (!fs.existsSync(indexPath)) {
+        console.warn("[seo-sitemap] dist/index.html missing — per-route HTML skipped.");
+        return;
+      }
+      const written = writeRouteHtmlFiles(outDir, base, fs.readFileSync(indexPath, "utf8"));
+      console.log(`[seo-sitemap] pre-rendered ${written.length} route(s): ${written.join(", ")}`);
     },
   };
 }

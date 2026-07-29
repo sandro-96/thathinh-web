@@ -1,51 +1,15 @@
 import { getSiteUrl, absoluteUrl } from "@/lib/siteUrl";
 import { SEO_LONG_TAIL_PAGES } from "@/lib/seoLongTailPages";
+import {
+  BRAND,
+  DEFAULT_DESCRIPTION,
+  DEFAULT_TITLE,
+  PUBLIC_ROUTES,
+  SEO_KEYWORDS,
+  normalizePath,
+} from "@/lib/seoRoutes";
 
-export const BRAND = "Thả Thính";
-export const DEFAULT_TITLE =
-  "Thả Thính — Hẹn hò online, chat làm quen & ghép đôi 1:1 | thathinh.vn";
-export const DEFAULT_DESCRIPTION =
-  "Thả Thính (thathinh.vn) — app hẹn hò & chat làm quen online cho người Việt: phòng chat theo tỉnh và sở thích, thả thính ghép đôi ngẫu nhiên 1:1. Chỉ cần nickname, miễn phí, từ 18 tuổi.";
-
-/** Meta keywords (legacy; Google ưu tiên title/description/nội dung trang). */
-export const SEO_KEYWORDS = [
-  "thả thính",
-  "thathinh",
-  "thathinh.vn",
-  "hẹn hò online",
-  "chat làm quen",
-  "làm quen người lạ",
-  "ghép đôi ngẫu nhiên",
-  "trò chuyện ẩn danh",
-  "kết bạn online",
-  "phòng chat theo sở thích",
-  "chat theo tỉnh",
-  "dating việt nam",
-  "chat 1:1",
-  "ứng dụng hẹn hò",
-  "tìm bạn bè online",
-  "chat với người lạ",
-  "chat người lạ",
-  "chat ngẫu nhiên",
-  "nguoilaoi",
-  "người lạ ơi",
-  "tinder việt nam",
-  "badoo việt nam",
-  "omegle việt nam",
-  "thay thế tinder",
-  "chat làm quen tphcm",
-  "chat theo sở thích",
-  "phòng chat theo sở thích",
-  "hẹn hò online an toàn",
-  "chat làm quen sài gòn",
-  "app làm quen",
-  "tìm người quanh đây",
-  "hẹn hò gần đây",
-  "chat với người gần bạn",
-  "tìm bạn gần đây",
-  "kết bạn gần đây",
-  "người ấy quanh đây",
-].join(", ");
+export { BRAND, DEFAULT_TITLE, DEFAULT_DESCRIPTION, SEO_KEYWORDS };
 
 export const LANDING_FAQ = [
   {
@@ -95,57 +59,17 @@ function ogImage() {
   return absoluteUrl(p) || undefined;
 }
 
-/**
- * Per-path SEO. Keys are exact pathnames (public, indexable pages only).
- * Anything not listed is treated as a private app surface → noindex.
- */
-const ROUTES = {
-  "/": {
-    title: DEFAULT_TITLE,
-    description: DEFAULT_DESCRIPTION,
-    index: true,
-  },
-  "/login": {
-    title: "Đăng nhập / Đăng ký | Thả Thính — Chat làm quen online",
-    description:
-      "Đăng nhập hoặc tạo tài khoản Thả Thính miễn phí để chat làm quen, tham gia phòng topic và thả thính ghép đôi 1:1. Chỉ cần nickname.",
-    index: true,
-  },
-  "/terms": {
-    title: "Điều khoản sử dụng | Thả Thính",
-    description: "Điều khoản sử dụng dịch vụ hẹn hò & chat Thả Thính tại thathinh.vn.",
-    index: true,
-  },
-  "/privacy": {
-    title: "Chính sách quyền riêng tư | Thả Thính",
-    description: "Chính sách bảo mật và quyền riêng tư của Thả Thính (thathinh.vn).",
-    index: true,
-  },
-  "/chat-lam-quen-online": {
-    title: "Chat với người lạ & chat ngẫu nhiên | Thay Tinder, Badoo — Thả Thính",
-    description:
-      "Tìm chat người lạ, chat ngẫu nhiên, hẹn hò online tại Việt Nam? Thả Thính — ghép đôi 1:1 & phòng chat theo sở thích. Lựa chọn thay thế Tinder, Badoo, Người Lạ Ơi (nguoilaoi). Miễn phí.",
-    index: true,
-  },
-  ...Object.fromEntries(
-    Object.entries(SEO_LONG_TAIL_PAGES).map(([path, page]) => [
-      path,
-      { title: page.title, description: page.description, index: true },
-    ]),
-  ),
-};
-
 /** Resolve SEO metadata for a pathname. Unknown/private paths → noindex. */
 export function seoForPath(pathname) {
-  const clean = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
-  const cfg = ROUTES[clean];
-  const canonical = cfg?.index ? absoluteUrl(clean) || undefined : undefined;
+  const clean = normalizePath(pathname);
+  const cfg = PUBLIC_ROUTES[clean];
+  const canonical = cfg ? absoluteUrl(clean) || undefined : undefined;
 
   return {
     title: cfg?.title || DEFAULT_TITLE,
     description: cfg?.description || DEFAULT_DESCRIPTION,
-    keywords: clean === "/" ? SEO_KEYWORDS : undefined,
-    noIndex: !cfg?.index,
+    keywords: cfg?.keywords,
+    noIndex: !cfg,
     canonical,
     ogImage: ogImage(),
     siteName: BRAND,
@@ -223,10 +147,10 @@ export function buildLandingJsonLd() {
 
 /** JSON-LD theo pathname (trang public). */
 export function buildPageJsonLd(pathname) {
-  const clean = pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname;
+  const clean = normalizePath(pathname);
   if (clean === "/") return buildLandingJsonLd();
-  const cfg = ROUTES[clean];
-  if (!cfg?.index) return undefined;
+  const cfg = PUBLIC_ROUTES[clean];
+  if (!cfg) return undefined;
   const global = buildGlobalJsonLd() || [];
   if (clean === "/chat-lam-quen-online" || SEO_LONG_TAIL_PAGES[clean]) {
     return [
